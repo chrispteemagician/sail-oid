@@ -1,0 +1,962 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Create Your Hamlet | Sail-Oid Village</title>
+    <meta name="description" content="Build your own hamlet in the Sail-Oid Marina Village. Free. No images. Works everywhere forever.">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Caveat:wght@400;700&family=Outfit:wght@300;400;600;800&display=swap" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <style>
+        :root {
+            --deep: #071e33;
+            --primary: #0e6080;
+            --primary-light: #0ea5e9;
+            --gold: #fbbf24;
+            --gold-dark: #d97706;
+            --cream: #e0f2fe;
+            --text: #bae6fd;
+            --text-muted: #7dd3fc;
+            --danger: #e74c3c;
+        }
+
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+
+        body {
+            font-family: 'Outfit', sans-serif;
+            background: var(--deep);
+            color: var(--text);
+            min-height: 100vh;
+            font-size: 18px;
+            line-height: 1.7;
+        }
+
+        .font-hand { font-family: 'Caveat', cursive; }
+
+        /* ── HEADER ── */
+        .signup-header {
+            text-align: center;
+            padding: 40px 20px 20px;
+        }
+        .signup-header h1 {
+            font-family: 'Caveat', cursive;
+            font-size: clamp(2rem, 7vw, 3rem);
+            color: var(--gold);
+        }
+        .signup-header p {
+            color: var(--text-muted);
+            margin-top: 4px;
+        }
+
+        /* ── PROGRESS ── */
+        .progress-bar {
+            display: flex;
+            justify-content: center;
+            gap: 8px;
+            padding: 20px;
+            margin-bottom: 10px;
+        }
+        .progress-dot {
+            width: 14px; height: 14px;
+            border-radius: 50%;
+            background: rgba(251,191,36,0.15);
+            border: 2px solid rgba(251,191,36,0.3);
+            transition: all 0.3s;
+        }
+        .progress-dot.active {
+            background: var(--gold);
+            border-color: var(--gold);
+            box-shadow: 0 0 12px rgba(251,191,36,0.4);
+        }
+        .progress-dot.done {
+            background: var(--gold-dark);
+            border-color: var(--gold-dark);
+        }
+        .progress-label {
+            text-align: center;
+            color: var(--text-muted);
+            font-size: 0.9rem;
+            margin-bottom: 30px;
+        }
+
+        /* ── STEPS ── */
+        .step {
+            display: none;
+            max-width: 600px;
+            margin: 0 auto;
+            padding: 0 20px 40px;
+            animation: fadeIn 0.3s ease;
+        }
+        .step.active { display: block; }
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: none; } }
+
+        .step-question {
+            font-family: 'Caveat', cursive;
+            font-size: clamp(1.6rem, 5vw, 2.2rem);
+            color: var(--cream);
+            margin-bottom: 8px;
+        }
+        .step-hint {
+            color: var(--text-muted);
+            font-size: 0.95rem;
+            margin-bottom: 24px;
+        }
+
+        /* ── INPUTS ── */
+        input[type="text"],
+        input[type="email"],
+        input[type="url"],
+        textarea {
+            width: 100%;
+            padding: 16px 20px;
+            background: rgba(14,160,233,0.06);
+            border: 2px solid rgba(14,160,233,0.2);
+            border-radius: 12px;
+            color: var(--text);
+            font-family: 'Outfit', sans-serif;
+            font-size: 18px;
+            line-height: 1.6;
+            outline: none;
+            transition: border-color 0.2s;
+        }
+        input:focus, textarea:focus {
+            border-color: var(--gold);
+        }
+        input::placeholder, textarea::placeholder {
+            color: var(--text-muted);
+            opacity: 0.6;
+        }
+        textarea { resize: vertical; min-height: 120px; }
+
+        .input-label {
+            display: block;
+            font-weight: 600;
+            color: var(--cream);
+            margin-bottom: 8px;
+            font-size: 0.95rem;
+        }
+        .input-group { margin-bottom: 20px; }
+
+        /* ── BUTTONS ── */
+        .btn-row {
+            display: flex;
+            gap: 12px;
+            margin-top: 32px;
+        }
+        .btn {
+            padding: 16px 36px;
+            border: none;
+            border-radius: 12px;
+            font-family: 'Outfit', sans-serif;
+            font-size: 1.05rem;
+            font-weight: 700;
+            cursor: pointer;
+            transition: transform 0.2s, box-shadow 0.2s;
+            min-height: 56px;
+        }
+        .btn:active { transform: scale(0.98); }
+        .btn-next {
+            background: linear-gradient(135deg, var(--gold), var(--gold-dark));
+            color: var(--deep);
+            flex: 1;
+        }
+        .btn-next:hover {
+            box-shadow: 0 6px 20px rgba(251,191,36,0.3);
+            transform: translateY(-2px);
+        }
+        .btn-back {
+            background: rgba(251,191,36,0.1);
+            border: 1px solid rgba(251,191,36,0.25);
+            color: var(--gold);
+            padding: 16px 24px;
+        }
+        .btn-back:hover { background: rgba(251,191,36,0.15); }
+        .btn-skip {
+            background: none;
+            border: none;
+            color: var(--text-muted);
+            font-family: 'Outfit', sans-serif;
+            font-size: 0.9rem;
+            cursor: pointer;
+            padding: 8px;
+            margin-top: 12px;
+            display: block;
+            text-align: center;
+            width: 100%;
+        }
+        .btn-skip:hover { color: var(--gold); }
+
+        /* ── PRODUCTS (Step 4) ── */
+        .product-entry {
+            background: rgba(14,160,233,0.04);
+            border: 1px solid rgba(14,160,233,0.15);
+            border-radius: 16px;
+            padding: 20px;
+            margin-bottom: 16px;
+        }
+        .product-entry-header {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            margin-bottom: 12px;
+        }
+        .emoji-btn {
+            width: 56px; height: 56px;
+            border-radius: 12px;
+            border: 2px solid rgba(14,160,233,0.25);
+            background: rgba(14,160,233,0.06);
+            font-size: 1.8rem;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: border-color 0.2s;
+            flex-shrink: 0;
+        }
+        .emoji-btn:hover { border-color: var(--gold); }
+        .product-name-input { flex: 1; }
+        .add-product-btn {
+            width: 100%;
+            padding: 16px;
+            background: rgba(14,160,233,0.06);
+            border: 2px dashed rgba(14,160,233,0.2);
+            border-radius: 16px;
+            color: var(--text-muted);
+            font-family: 'Outfit', sans-serif;
+            font-size: 1rem;
+            cursor: pointer;
+            min-height: 56px;
+            transition: border-color 0.2s, color 0.2s;
+        }
+        .add-product-btn:hover {
+            border-color: var(--gold);
+            color: var(--gold);
+        }
+        .remove-product {
+            background: none;
+            border: none;
+            color: var(--text-muted);
+            font-size: 1.2rem;
+            cursor: pointer;
+            padding: 4px 8px;
+            margin-left: auto;
+        }
+        .remove-product:hover { color: var(--danger); }
+
+        /* ── EMOJI PICKER ── */
+        .emoji-picker-overlay {
+            display: none;
+            position: fixed;
+            inset: 0;
+            background: rgba(0,0,0,0.7);
+            z-index: 1000;
+            align-items: flex-end;
+            justify-content: center;
+        }
+        .emoji-picker-overlay.open { display: flex; }
+        .emoji-picker {
+            background: #0c2d47;
+            border-radius: 20px 20px 0 0;
+            padding: 24px 16px 32px;
+            width: 100%;
+            max-width: 500px;
+            max-height: 70vh;
+            overflow-y: auto;
+        }
+        .emoji-picker h3 {
+            font-family: 'Caveat', cursive;
+            color: var(--gold);
+            font-size: 1.4rem;
+            text-align: center;
+            margin-bottom: 16px;
+        }
+        .emoji-grid {
+            display: grid;
+            grid-template-columns: repeat(8, 1fr);
+            gap: 4px;
+        }
+        .emoji-option {
+            font-size: 1.6rem;
+            padding: 10px;
+            text-align: center;
+            cursor: pointer;
+            border-radius: 10px;
+            border: none;
+            background: none;
+            transition: background 0.15s;
+        }
+        .emoji-option:hover { background: rgba(251,191,36,0.15); }
+        .emoji-close {
+            display: block;
+            margin: 16px auto 0;
+            padding: 12px 32px;
+            background: rgba(251,191,36,0.1);
+            border: 1px solid rgba(251,191,36,0.3);
+            border-radius: 100px;
+            color: var(--gold);
+            font-family: 'Outfit', sans-serif;
+            font-size: 0.95rem;
+            cursor: pointer;
+        }
+
+        /* ── LINKS (Step 5) ── */
+        .link-row {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            margin-bottom: 14px;
+        }
+        .link-icon {
+            font-size: 1.4rem;
+            width: 40px;
+            text-align: center;
+            flex-shrink: 0;
+        }
+        .link-row input { flex: 1; }
+
+        /* ── PREVIEW (Step 7) ── */
+        .preview-card {
+            background: rgba(14,160,233,0.04);
+            border: 1px solid rgba(14,160,233,0.2);
+            border-radius: 20px;
+            overflow: hidden;
+        }
+        .preview-hero {
+            background: linear-gradient(135deg, rgba(14,160,233,0.15), rgba(14,160,233,0.04));
+            padding: 32px 24px;
+            text-align: center;
+        }
+        .preview-hero h2 {
+            font-family: 'Caveat', cursive;
+            font-size: 2rem;
+            color: var(--cream);
+        }
+        .preview-hero p { color: var(--gold); }
+        .preview-body { padding: 24px; }
+        .preview-body p { margin-bottom: 16px; color: var(--text); }
+        .preview-products {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 12px;
+            margin-bottom: 16px;
+        }
+        .preview-product {
+            background: rgba(14,160,233,0.06);
+            border-radius: 12px;
+            padding: 16px;
+            text-align: center;
+        }
+        .preview-product-emoji { font-size: 1.8rem; display: block; margin-bottom: 4px; }
+        .preview-product-name { font-weight: 600; color: var(--cream); font-size: 0.9rem; }
+        .preview-links {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+            margin-bottom: 16px;
+        }
+        .preview-link-tag {
+            background: rgba(14,160,233,0.1);
+            padding: 6px 14px;
+            border-radius: 100px;
+            font-size: 0.85rem;
+            color: var(--text-muted);
+        }
+        .preview-quote {
+            font-style: italic;
+            text-align: center;
+            color: var(--cream);
+            padding: 16px;
+            border-top: 1px solid rgba(14,160,233,0.1);
+        }
+
+        /* ── SUCCESS ── */
+        #success {
+            display: none;
+            text-align: center;
+            padding: 80px 20px;
+            max-width: 600px;
+            margin: 0 auto;
+        }
+        #success h1 {
+            font-family: 'Caveat', cursive;
+            font-size: 2.5rem;
+            color: var(--gold);
+            margin-bottom: 16px;
+        }
+        #success p { color: var(--text-muted); margin-bottom: 24px; }
+
+        /* ── WHY TEXT ONLY ── */
+        .why-text-only {
+            max-width: 500px;
+            margin: 40px auto 0;
+            padding: 24px;
+            background: rgba(14,160,233,0.04);
+            border: 1px solid rgba(14,160,233,0.12);
+            border-radius: 16px;
+            text-align: center;
+        }
+        .why-text-only h3 {
+            font-family: 'Caveat', cursive;
+            color: var(--gold);
+            font-size: 1.3rem;
+            margin-bottom: 8px;
+        }
+        .why-text-only p {
+            font-size: 0.9rem;
+            color: var(--text-muted);
+            line-height: 1.6;
+        }
+
+        /* ── SUBMITTING ── */
+        .btn-next:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+            transform: none !important;
+        }
+
+        @media (max-width: 480px) {
+            .emoji-grid { grid-template-columns: repeat(6, 1fr); }
+            .preview-products { grid-template-columns: 1fr; }
+        }
+    </style>
+</head>
+<body>
+    <!-- HEADER -->
+    <header class="signup-header">
+        <h1>⛵ Create Your Hamlet</h1>
+        <p>Your berth in the Marina Village</p>
+    </header>
+
+    <!-- PROGRESS -->
+    <div class="progress-bar" id="progressBar"></div>
+    <div class="progress-label" id="progressLabel"></div>
+
+    <!-- STEP 1: NAME -->
+    <div class="step active" data-step="1">
+        <h2 class="step-question">What should we call you?</h2>
+        <p class="step-hint">Your name as you'd like it on your page.</p>
+        <input type="text" id="inputName" placeholder="e.g. Dave Appleby" autocomplete="name">
+        <div class="btn-row">
+            <button class="btn btn-next" onclick="nextStep()">Next</button>
+        </div>
+    </div>
+
+    <!-- STEP 2: CRAFT -->
+    <div class="step" data-step="2">
+        <h2 class="step-question">What do you do?</h2>
+        <p class="step-hint">Describe what you do in one line.</p>
+        <input type="text" id="inputCraft" placeholder="e.g. RYA instructor and weekend liveaboard sailor">
+        <div class="btn-row">
+            <button class="btn btn-back" onclick="prevStep()">Back</button>
+            <button class="btn btn-next" onclick="nextStep()">Next</button>
+        </div>
+        <button class="btn-skip" onclick="nextStep()">Skip for now</button>
+    </div>
+
+    <!-- STEP 3: STORY -->
+    <div class="step" data-step="3">
+        <h2 class="step-question">Tell us about yourself</h2>
+        <p class="step-hint">2-3 sentences. What got you on the water?</p>
+        <textarea id="inputStory" placeholder="e.g. I crewed my first yacht at 19 and never really came back to shore. I teach dinghy sailing on weekends and live aboard a 32ft sloop..." rows="4"></textarea>
+        <div class="btn-row">
+            <button class="btn btn-back" onclick="prevStep()">Back</button>
+            <button class="btn btn-next" onclick="nextStep()">Next</button>
+        </div>
+        <button class="btn-skip" onclick="nextStep()">Skip for now</button>
+    </div>
+
+    <!-- STEP 4: PRODUCTS -->
+    <div class="step" data-step="4">
+        <h2 class="step-question">What do you offer?</h2>
+        <p class="step-hint">Up to 4 things you teach, make, sell, or offer. Tap the box to pick an emoji.</p>
+        <div id="productsContainer"></div>
+        <button class="add-product-btn" id="addProductBtn" onclick="addProduct()">+ Add another</button>
+        <div class="btn-row">
+            <button class="btn btn-back" onclick="prevStep()">Back</button>
+            <button class="btn btn-next" onclick="nextStep()">Next</button>
+        </div>
+        <button class="btn-skip" onclick="nextStep()">Skip for now</button>
+    </div>
+
+    <!-- STEP 5: LINKS -->
+    <div class="step" data-step="5">
+        <h2 class="step-question">Where can people find you?</h2>
+        <p class="step-hint">All optional. Only what you fill in will show.</p>
+        <div class="link-row">
+            <span class="link-icon">🌐</span>
+            <input type="url" id="linkWebsite" placeholder="Website URL">
+        </div>
+        <div class="link-row">
+            <span class="link-icon">📸</span>
+            <input type="url" id="linkInstagram" placeholder="Instagram URL">
+        </div>
+        <div class="link-row">
+            <span class="link-icon">🎵</span>
+            <input type="url" id="linkTiktok" placeholder="TikTok URL">
+        </div>
+        <div class="link-row">
+            <span class="link-icon">👥</span>
+            <input type="url" id="linkFacebook" placeholder="Facebook URL">
+        </div>
+        <div class="link-row">
+            <span class="link-icon">𝕏</span>
+            <input type="url" id="linkTwitter" placeholder="X / Twitter URL">
+        </div>
+        <div class="link-row">
+            <span class="link-icon">💼</span>
+            <input type="url" id="linkLinkedin" placeholder="LinkedIn URL">
+        </div>
+        <div class="link-row">
+            <span class="link-icon">✉️</span>
+            <input type="email" id="linkEmail" placeholder="Email address">
+        </div>
+        <div class="btn-row">
+            <button class="btn btn-back" onclick="prevStep()">Back</button>
+            <button class="btn btn-next" onclick="nextStep()">Next</button>
+        </div>
+        <button class="btn-skip" onclick="nextStep()">Skip for now</button>
+    </div>
+
+    <!-- STEP 6: QUOTE -->
+    <div class="step" data-step="6">
+        <h2 class="step-question">Got a favourite quote?</h2>
+        <p class="step-hint">Something you love, or something you always say.</p>
+        <div class="input-group">
+            <input type="text" id="inputQuote" placeholder='e.g. "The sea, once it casts its spell, holds one in its net of wonder forever"'>
+        </div>
+        <div class="input-group">
+            <label class="input-label">Who said it?</label>
+            <input type="text" id="inputQuoteAttr" placeholder="e.g. Jacques Cousteau">
+        </div>
+        <div class="btn-row">
+            <button class="btn btn-back" onclick="prevStep()">Back</button>
+            <button class="btn btn-next" onclick="nextStep()">Preview Your Hamlet</button>
+        </div>
+        <button class="btn-skip" onclick="nextStep()">Skip for now</button>
+    </div>
+
+    <!-- STEP 7: PREVIEW -->
+    <div class="step" data-step="7">
+        <h2 class="step-question">Here's your hamlet</h2>
+        <p class="step-hint">This is what people will see. Happy? Hit "Make It Live."</p>
+        <div class="preview-card" id="previewCard"></div>
+        <div class="btn-row">
+            <button class="btn btn-back" onclick="prevStep()">Edit</button>
+            <button class="btn btn-next" id="submitBtn" onclick="submitHamlet()">Make It Live</button>
+        </div>
+
+        <div class="why-text-only">
+            <h3>Why text only?</h3>
+            <p>Your hamlet works on every device. A phone. A tablet. A laptop. A screen reader. A smartwatch. A Nokia brick. Whatever comes next.<br><br>
+            No images to load. No videos to buffer. No chat to moderate. No cookies to consent to. No data to harvest.<br><br>
+            Just your words. Your craft. Your links. Fast, clean, accessible, private, and future-proof.<br><br>
+            <em>When the next device is invented, your hamlet will already work on it.</em></p>
+        </div>
+    </div>
+
+    <!-- SUCCESS -->
+    <div id="success">
+        <h1>⛵ Your Hamlet Is Live!</h1>
+        <p>Welcome to the marina. You've got a berth.</p>
+        <a id="hamletLink" href="#" class="btn btn-next" style="display:inline-block;text-decoration:none;">Visit Your Hamlet</a>
+        <div style="margin-top:32px;padding:24px;background:rgba(14,160,233,0.04);border:1px solid rgba(14,160,233,0.15);border-radius:16px;max-width:500px;margin-left:auto;margin-right:auto;">
+            <h3 style="font-family:'Caveat',cursive;color:var(--gold);font-size:1.4rem;margin-bottom:8px;">Add Extras Later</h3>
+            <p style="color:var(--text-muted);font-size:0.9rem;margin-bottom:16px;">Booking links, your kit list, your eBay listings — bookmark this link to add them anytime:</p>
+            <a id="editLink" href="#" style="display:inline-block;padding:12px 28px;background:rgba(14,160,233,0.1);border:1px solid rgba(14,160,233,0.3);border-radius:100px;color:var(--text-muted);text-decoration:none;font-weight:600;font-size:0.95rem;">Customise Your Hamlet</a>
+            <p style="color:var(--text-muted);font-size:0.8rem;margin-top:12px;font-style:italic;">This is your secret link. Bookmark it — it's the only way to edit your page.</p>
+        </div>
+    </div>
+
+    <!-- EMOJI PICKER OVERLAY -->
+    <div class="emoji-picker-overlay" id="emojiOverlay">
+        <div class="emoji-picker">
+            <h3>Pick an emoji</h3>
+            <div class="emoji-grid" id="emojiGrid"></div>
+            <button class="emoji-close" onclick="closeEmojiPicker()">Cancel</button>
+        </div>
+    </div>
+
+    <script>
+        const SUPABASE_URL = 'https://pdnjeynugptnavkdbmxh.supabase.co';
+        const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InBkbmpleW51Z3B0bmF2a2RibXhoIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjkwMTEzMDAsImV4cCI6MjA4NDU4NzMwMH0.GawisR01EykMtdauBMxenmHF2NXDMzDOJl8WgzkwFQo';
+
+        let sb;
+        try {
+            sb = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY, {
+                auth: { persistSession: false, autoRefreshToken: false, detectSessionInUrl: false }
+            });
+        } catch(e) {}
+
+        const TOTAL_STEPS = 7;
+        let currentStep = 1;
+        let activeEmojiIndex = null;
+
+        const EMOJIS = [
+            '⛵','🚢','🛥️','⚓','🌊','🧭','🗺️','🏖️',
+            '🐚','🐠','🦈','🐋','🦭','🐡','🦀','🦞',
+            '🎣','🤿','🏄','🚣','⛷️','🏔️','🌅','🌄',
+            '🎭','🎤','🎶','🎸','🎨','✍️','📚','📷',
+            '🔧','🛠️','⚙️','🔩','🪝','📦','🌿','🌸',
+            '⭐','🔥','💧','🌈','☀️','☕','🍺','🍷',
+            '❤️','💛','💚','💙','🤍','✨','💫','🌟',
+            '⚡','🎯','👋','🤝','👍','✌️','💪','🙌',
+            '🏠','🧵','🧪','🌱','🍃','🦋','🐝','🦊',
+            '🚀','🏆','🎁','💎','🗝️','🕯️','🔮','🌙'
+        ];
+
+        // ── INIT ──
+        function init() {
+            buildProgressDots();
+            updateProgress();
+            addProduct();
+            buildEmojiGrid();
+            restoreFromStorage();
+        }
+
+        function buildProgressDots() {
+            const bar = document.getElementById('progressBar');
+            bar.innerHTML = '';
+            for (let i = 1; i <= TOTAL_STEPS; i++) {
+                const dot = document.createElement('div');
+                dot.className = 'progress-dot';
+                dot.dataset.step = i;
+                bar.appendChild(dot);
+            }
+        }
+
+        function updateProgress() {
+            const dots = document.querySelectorAll('.progress-dot');
+            dots.forEach(function(dot) {
+                const s = parseInt(dot.dataset.step);
+                dot.classList.remove('active', 'done');
+                if (s === currentStep) dot.classList.add('active');
+                else if (s < currentStep) dot.classList.add('done');
+            });
+            const labels = ['Your Name', 'What You Do', 'Your Story', 'What You Offer', 'Your Links', 'Your Quote', 'Preview'];
+            document.getElementById('progressLabel').textContent =
+                'Step ' + currentStep + ' of ' + TOTAL_STEPS + ' — ' + labels[currentStep - 1];
+        }
+
+        // ── NAVIGATION ──
+        function nextStep() {
+            if (currentStep === 1) {
+                var name = document.getElementById('inputName').value.trim();
+                if (!name) {
+                    document.getElementById('inputName').focus();
+                    document.getElementById('inputName').style.borderColor = 'var(--danger)';
+                    setTimeout(function() {
+                        document.getElementById('inputName').style.borderColor = '';
+                    }, 2000);
+                    return;
+                }
+            }
+            if (currentStep === 7) return;
+            saveToStorage();
+            if (currentStep === 6) buildPreview();
+            currentStep++;
+            showStep();
+        }
+
+        function prevStep() {
+            if (currentStep <= 1) return;
+            saveToStorage();
+            currentStep--;
+            showStep();
+        }
+
+        function showStep() {
+            document.querySelectorAll('.step').forEach(function(s) { s.classList.remove('active'); });
+            var target = document.querySelector('.step[data-step="' + currentStep + '"]');
+            if (target) target.classList.add('active');
+            updateProgress();
+            window.scrollTo(0, 0);
+        }
+
+        // ── PRODUCTS ──
+        function addProduct() {
+            var container = document.getElementById('productsContainer');
+            var count = container.children.length;
+            if (count >= 4) return;
+
+            var entry = document.createElement('div');
+            entry.className = 'product-entry';
+            entry.innerHTML =
+                '<div class="product-entry-header">' +
+                    '<button class="emoji-btn" onclick="openEmojiPicker(' + count + ')" title="Pick an emoji">⛵</button>' +
+                    '<input type="text" class="product-name-input" placeholder="e.g. RYA Day Skipper Tuition">' +
+                    (count > 0 ? '<button class="remove-product" onclick="removeProduct(this)" title="Remove">&times;</button>' : '') +
+                '</div>' +
+                '<input type="text" placeholder="One-line description" style="width:100%">';
+            container.appendChild(entry);
+
+            if (container.children.length >= 4) {
+                document.getElementById('addProductBtn').style.display = 'none';
+            }
+        }
+
+        function removeProduct(btn) {
+            btn.closest('.product-entry').remove();
+            document.getElementById('addProductBtn').style.display = '';
+            var entries = document.querySelectorAll('.product-entry');
+            entries.forEach(function(e, i) {
+                e.querySelector('.emoji-btn').setAttribute('onclick', 'openEmojiPicker(' + i + ')');
+            });
+        }
+
+        // ── EMOJI PICKER ──
+        function buildEmojiGrid() {
+            var grid = document.getElementById('emojiGrid');
+            grid.innerHTML = EMOJIS.map(function(e) {
+                return '<button class="emoji-option" onclick="pickEmoji(\'' + e + '\')">' + e + '</button>';
+            }).join('');
+        }
+
+        function openEmojiPicker(index) {
+            activeEmojiIndex = index;
+            document.getElementById('emojiOverlay').classList.add('open');
+        }
+
+        function closeEmojiPicker() {
+            document.getElementById('emojiOverlay').classList.remove('open');
+            activeEmojiIndex = null;
+        }
+
+        function pickEmoji(emoji) {
+            if (activeEmojiIndex !== null) {
+                var btns = document.querySelectorAll('.emoji-btn');
+                if (btns[activeEmojiIndex]) {
+                    btns[activeEmojiIndex].textContent = emoji;
+                }
+            }
+            closeEmojiPicker();
+        }
+
+        document.getElementById('emojiOverlay').addEventListener('click', function(e) {
+            if (e.target === this) closeEmojiPicker();
+        });
+
+        // ── SAVE/RESTORE (localStorage) ──
+        function gatherData() {
+            var products = [];
+            document.querySelectorAll('.product-entry').forEach(function(entry) {
+                var emoji = entry.querySelector('.emoji-btn').textContent.trim();
+                var name = entry.querySelector('.product-name-input').value.trim();
+                var desc = entry.querySelectorAll('input')[1].value.trim();
+                if (name || desc) {
+                    products.push({ emoji: emoji || '⛵', name: name, desc: desc });
+                }
+            });
+
+            return {
+                name: document.getElementById('inputName').value.trim(),
+                craft: document.getElementById('inputCraft').value.trim(),
+                story: document.getElementById('inputStory').value.trim(),
+                products: products,
+                links: {
+                    website: document.getElementById('linkWebsite').value.trim(),
+                    instagram: document.getElementById('linkInstagram').value.trim(),
+                    tiktok: document.getElementById('linkTiktok').value.trim(),
+                    facebook: document.getElementById('linkFacebook').value.trim(),
+                    twitter: document.getElementById('linkTwitter').value.trim(),
+                    linkedin: document.getElementById('linkLinkedin').value.trim(),
+                    email: document.getElementById('linkEmail').value.trim()
+                },
+                quote_text: document.getElementById('inputQuote').value.trim(),
+                quote_attribution: document.getElementById('inputQuoteAttr').value.trim()
+            };
+        }
+
+        function saveToStorage() {
+            try {
+                localStorage.setItem('sail_hamlet_draft', JSON.stringify(gatherData()));
+                localStorage.setItem('sail_hamlet_step', currentStep);
+            } catch (e) {}
+        }
+
+        function restoreFromStorage() {
+            try {
+                var saved = localStorage.getItem('sail_hamlet_draft');
+                var savedStep = localStorage.getItem('sail_hamlet_step');
+                if (!saved) return;
+                var d = JSON.parse(saved);
+                if (d.name) document.getElementById('inputName').value = d.name;
+                if (d.craft) document.getElementById('inputCraft').value = d.craft;
+                if (d.story) document.getElementById('inputStory').value = d.story;
+                if (d.links) {
+                    if (d.links.website) document.getElementById('linkWebsite').value = d.links.website;
+                    if (d.links.instagram) document.getElementById('linkInstagram').value = d.links.instagram;
+                    if (d.links.tiktok) document.getElementById('linkTiktok').value = d.links.tiktok;
+                    if (d.links.facebook) document.getElementById('linkFacebook').value = d.links.facebook;
+                    if (d.links.twitter) document.getElementById('linkTwitter').value = d.links.twitter;
+                    if (d.links.linkedin) document.getElementById('linkLinkedin').value = d.links.linkedin;
+                    if (d.links.email) document.getElementById('linkEmail').value = d.links.email;
+                }
+                if (d.quote_text) document.getElementById('inputQuote').value = d.quote_text;
+                if (d.quote_attribution) document.getElementById('inputQuoteAttr').value = d.quote_attribution;
+                if (d.products && d.products.length > 0) {
+                    var container = document.getElementById('productsContainer');
+                    container.innerHTML = '';
+                    d.products.forEach(function(p, i) {
+                        addProduct();
+                        var entries = container.querySelectorAll('.product-entry');
+                        var entry = entries[entries.length - 1];
+                        entry.querySelector('.emoji-btn').textContent = p.emoji || '⛵';
+                        entry.querySelector('.product-name-input').value = p.name || '';
+                        entry.querySelectorAll('input')[1].value = p.desc || '';
+                    });
+                }
+                if (savedStep && parseInt(savedStep) > 1 && parseInt(savedStep) <= TOTAL_STEPS) {
+                    currentStep = parseInt(savedStep);
+                    showStep();
+                }
+            } catch (e) {}
+        }
+
+        // ── PREVIEW ──
+        function buildPreview() {
+            var d = gatherData();
+            var html = '';
+
+            html += '<div class="preview-hero">';
+            html += '<h2>' + escHtml(d.name || 'Your Name') + '</h2>';
+            if (d.craft) html += '<p>' + escHtml(d.craft) + '</p>';
+            html += '</div>';
+
+            html += '<div class="preview-body">';
+
+            if (d.story) {
+                html += '<p>' + escHtml(d.story) + '</p>';
+            }
+
+            if (d.products.length > 0) {
+                html += '<div class="preview-products">';
+                d.products.forEach(function(p) {
+                    html += '<div class="preview-product">';
+                    html += '<span class="preview-product-emoji">' + (p.emoji || '⛵') + '</span>';
+                    html += '<span class="preview-product-name">' + escHtml(p.name) + '</span>';
+                    html += '</div>';
+                });
+                html += '</div>';
+            }
+
+            var filledLinks = Object.entries(d.links).filter(function(e) { return e[1]; });
+            if (filledLinks.length > 0) {
+                html += '<div class="preview-links">';
+                var icons = { website:'🌐', instagram:'📸', tiktok:'🎵', facebook:'👥', twitter:'𝕏', linkedin:'💼', email:'✉️' };
+                filledLinks.forEach(function(entry) {
+                    html += '<span class="preview-link-tag">' + (icons[entry[0]] || '🔗') + ' ' + entry[0] + '</span>';
+                });
+                html += '</div>';
+            }
+
+            if (d.quote_text) {
+                html += '<div class="preview-quote">';
+                html += '&ldquo;' + escHtml(d.quote_text) + '&rdquo;';
+                if (d.quote_attribution) html += '<br><small>— ' + escHtml(d.quote_attribution) + '</small>';
+                html += '</div>';
+            }
+
+            html += '</div>';
+            document.getElementById('previewCard').innerHTML = html;
+        }
+
+        // ── SUBMIT ──
+        async function submitHamlet() {
+            var d = gatherData();
+            if (!d.name) { currentStep = 1; showStep(); return; }
+            if (!sb) {
+                alert('Connection error. Please refresh and try again.');
+                return;
+            }
+
+            var btn = document.getElementById('submitBtn');
+            btn.disabled = true;
+            btn.textContent = 'Creating...';
+
+            try {
+                var slug = d.name.toLowerCase()
+                    .replace(/[^a-z0-9\s-]/g, '')
+                    .replace(/\s+/g, '-')
+                    .replace(/-+/g, '-')
+                    .replace(/^-|-$/g, '');
+
+                var { data: existing } = await sb
+                    .from('hamlet_data')
+                    .select('slug')
+                    .eq('slug', slug);
+
+                if (existing && existing.length > 0) {
+                    slug = slug + '-' + Date.now().toString(36).slice(-4);
+                }
+
+                var editToken = Array.from(crypto.getRandomValues(new Uint8Array(16)))
+                    .map(function(b) { return b.toString(16).padStart(2, '0'); }).join('');
+
+                var row = {
+                    slug: slug,
+                    name: d.name,
+                    craft: d.craft || null,
+                    story: d.story || null,
+                    products: d.products.length > 0 ? d.products : [],
+                    links: d.links,
+                    quote_text: d.quote_text || null,
+                    quote_attribution: d.quote_attribution || null,
+                    theme: 'default',
+                    tier: 'villager',
+                    village: 'sail-oid',
+                    email: d.links.email || null,
+                    edit_token: editToken
+                };
+
+                var { data: result, error } = await sb
+                    .from('hamlet_data')
+                    .insert(row)
+                    .select();
+
+                if (error) {
+                    btn.disabled = false;
+                    btn.textContent = 'Make It Live';
+                    alert('Something went wrong: ' + (error.message || 'Please try again.'));
+                    return;
+                }
+
+                localStorage.removeItem('sail_hamlet_draft');
+                localStorage.removeItem('sail_hamlet_step');
+
+                // Send welcome email if email provided — fire and forget
+                if (d.links && d.links.email) {
+                    fetch('/.netlify/functions/hamlet-welcome', {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({ email: d.links.email, name: d.name, hamlet: slug })
+                    }).catch(function() {});
+                }
+
+                document.querySelectorAll('.step').forEach(function(s) { s.classList.remove('active'); });
+                document.querySelector('.progress-bar').style.display = 'none';
+                document.querySelector('.progress-label').style.display = 'none';
+                document.querySelector('.signup-header').style.display = 'none';
+
+                var hamletUrl = '/hamlet/' + slug;
+                document.getElementById('hamletLink').href = hamletUrl;
+                document.getElementById('editLink').href = '/hamlet/edit?slug=' + slug + '&token=' + editToken;
+                document.getElementById('success').style.display = 'block';
+            } catch (e) {
+                btn.disabled = false;
+                btn.textContent = 'Make It Live';
+                alert('Something went wrong. Please try again.');
+            }
+        }
+
+        function escHtml(str) {
+            var div = document.createElement('div');
+            div.textContent = str;
+            return div.innerHTML;
+        }
+
+        window.addEventListener('DOMContentLoaded', init);
+    </script>
+</body>
+</html>

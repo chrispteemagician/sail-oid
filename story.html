@@ -1,0 +1,359 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>The Sail-Oid Story | The Marina Village — No Gatekeeping, Just Sailing</title>
+    <meta name="description" content="Why Sail-Oid exists. The vintage compass at the boot sale. The sailor who felt stupid asking. And Captain Dave the Rave — Bristol raver turned salty sea dog.">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Caveat:wght@400;700&family=Outfit:wght@300;400;600;800&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --abyss: #050f1c;
+            --deep: #071e33;
+            --mid: #0c3547;
+            --ocean: #0e6080;
+            --accent: #0ea5e9;
+            --highlight: #38bdf8;
+            --gold: #fbbf24;
+            --gold-dark: #d97706;
+            --foam: #f0f9ff;
+            --text: #bae6fd;
+            --text-muted: #7dd3fc;
+            --text-dim: rgba(186,230,253,0.5);
+        }
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+        body {
+            font-family: 'Outfit', sans-serif;
+            background: linear-gradient(180deg, var(--abyss) 0%, var(--deep) 50%, var(--abyss) 100%);
+            color: var(--text);
+            min-height: 100vh;
+            font-size: 18px;
+            line-height: 1.8;
+        }
+        .font-hand { font-family: 'Caveat', cursive; }
+        .container { max-width: 760px; margin: 0 auto; padding: 20px; }
+
+        .top-bar {
+            background: linear-gradient(90deg, #071e33, #0c3547, #071e33);
+            text-align: center;
+            padding: 14px 20px;
+            font-size: 16px;
+            color: var(--foam);
+        }
+        .top-bar a { color: var(--gold); font-weight: 700; text-decoration: none; }
+
+        .hero {
+            background: linear-gradient(135deg, var(--ocean) 0%, var(--deep) 100%);
+            text-align: center;
+            padding: 70px 30px 60px;
+            border-radius: 0 0 30px 30px;
+            border: 4px solid var(--gold);
+            border-top: none;
+            box-shadow: 0 8px 32px rgba(0,0,0,0.6), 0 0 80px rgba(14,160,233,0.12);
+            margin-bottom: 50px;
+        }
+        .hero h1 {
+            font-family: 'Caveat', cursive;
+            font-size: clamp(2.6rem, 9vw, 4.5rem);
+            color: var(--foam);
+            margin-bottom: 16px;
+            text-shadow: 0 0 40px rgba(251,191,36,0.35);
+            line-height: 1.2;
+        }
+        .hero .sub {
+            font-size: 1.2rem;
+            color: rgba(240,249,255,0.8);
+            max-width: 520px;
+            margin: 0 auto;
+            font-style: italic;
+        }
+
+        .section { margin-bottom: 50px; }
+        .section h2 {
+            font-family: 'Caveat', cursive;
+            font-size: 2.4rem;
+            color: var(--gold);
+            margin-bottom: 18px;
+            line-height: 1.2;
+        }
+        .section p { margin-bottom: 18px; color: var(--text); }
+        .section p:last-child { margin-bottom: 0; }
+
+        .pull-quote {
+            border-left: 4px solid var(--accent);
+            padding: 20px 28px;
+            margin: 32px 0;
+            background: rgba(14,165,233,0.07);
+            border-radius: 0 16px 16px 0;
+        }
+        .pull-quote p {
+            font-family: 'Caveat', cursive;
+            font-size: 1.7rem;
+            color: var(--highlight);
+            line-height: 1.4;
+            margin: 0;
+        }
+
+        .dave-block {
+            background: linear-gradient(135deg, rgba(12,53,71,0.6) 0%, rgba(5,15,28,0.95) 100%);
+            border: 2px solid rgba(56,189,248,0.2);
+            border-radius: 20px;
+            padding: 32px;
+            margin: 40px 0;
+        }
+        .dave-block h3 {
+            font-family: 'Caveat', cursive;
+            font-size: 2rem;
+            color: var(--highlight);
+            margin-bottom: 16px;
+        }
+        .dave-block p { color: rgba(186,230,253,0.8); margin-bottom: 14px; }
+        .dave-block p:last-child { margin-bottom: 0; }
+        .dave-quote {
+            font-family: 'Caveat', cursive;
+            font-size: 1.4rem;
+            color: var(--gold);
+            padding: 12px 0;
+            border-top: 1px solid rgba(56,189,248,0.1);
+            margin-top: 14px;
+        }
+
+        .value-box {
+            background: linear-gradient(135deg, rgba(14,96,128,0.12) 0%, rgba(5,15,28,0.95) 100%);
+            border: 2px solid rgba(14,165,233,0.2);
+            border-radius: 20px;
+            padding: 32px;
+            margin: 40px 0;
+        }
+        .value-box h3 {
+            font-family: 'Caveat', cursive;
+            font-size: 1.8rem;
+            color: var(--gold);
+            margin-bottom: 16px;
+        }
+        .value-row {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 10px 0;
+            border-bottom: 1px solid rgba(14,165,233,0.08);
+            font-size: 1rem;
+        }
+        .value-row:last-child { border-bottom: none; }
+        .value-row .label { color: var(--text-dim); }
+        .value-row .price { color: var(--gold); font-weight: 700; }
+        .value-row .price.free { color: #4ade80; font-size: 1.1rem; }
+        .value-note { margin-top: 16px; font-size: 0.95rem; color: var(--text-dim); font-style: italic; }
+
+        .tiers {
+            display: grid;
+            grid-template-columns: 1fr 1fr 1fr;
+            gap: 16px;
+            margin: 24px 0;
+        }
+        .tier {
+            background: rgba(14,165,233,0.05);
+            border: 1px solid rgba(14,165,233,0.15);
+            border-radius: 16px;
+            padding: 22px 18px;
+            text-align: center;
+        }
+        .tier .name { font-weight: 700; color: var(--highlight); font-size: 1.1rem; margin-bottom: 4px; }
+        .tier .price-tag { font-family: 'Caveat', cursive; font-size: 1.8rem; color: var(--gold); margin-bottom: 8px; }
+        .tier .desc { font-size: 0.9rem; color: var(--text-dim); line-height: 1.5; }
+
+        .cta-block {
+            background: linear-gradient(135deg, #071e33 0%, #050f1c 100%);
+            border: 3px solid var(--gold);
+            border-radius: 24px;
+            padding: 50px 40px;
+            text-align: center;
+            margin: 50px 0;
+        }
+        .cta-block h2 {
+            font-family: 'Caveat', cursive;
+            font-size: 2.8rem;
+            color: var(--gold);
+            margin-bottom: 16px;
+        }
+        .cta-block p { color: rgba(240,249,255,0.85); margin-bottom: 28px; font-size: 1.1rem; }
+        .btn {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            padding: 16px 36px;
+            border-radius: 12px;
+            font-size: 1.1rem;
+            font-weight: 700;
+            text-decoration: none;
+            font-family: 'Outfit', sans-serif;
+            transition: opacity 0.2s;
+            cursor: pointer;
+            border: none;
+            min-height: 56px;
+        }
+        .btn:hover { opacity: 0.88; }
+        .btn-ocean { background: linear-gradient(135deg, var(--ocean) 0%, #0c3547 100%); color: white; }
+        .btn-outline { background: transparent; border: 2px solid var(--gold); color: var(--gold); }
+
+        .footer {
+            text-align: center;
+            padding: 40px 20px;
+            color: var(--text-dim);
+            font-size: 15px;
+            line-height: 2.2;
+        }
+        .footer a { color: var(--gold); text-decoration: none; }
+        .footer .sacred {
+            font-family: 'Caveat', cursive;
+            font-size: 1.5rem;
+            color: var(--accent);
+            display: block;
+            margin-bottom: 12px;
+        }
+
+        @media (max-width: 600px) {
+            .tiers { grid-template-columns: 1fr; }
+            .btn { width: 100%; margin-bottom: 12px; }
+            .cta-block { padding: 36px 24px; }
+        }
+    </style>
+</head>
+<body>
+
+    <div class="top-bar">
+        ⛵ <a href="/">Sail-Oid</a> &nbsp;·&nbsp;
+        <a href="/#identify">Identify Kit</a> &nbsp;·&nbsp;
+        <a href="/#marina">The Marina</a> &nbsp;·&nbsp;
+        <strong style="color:var(--foam)">📖 Our Story</strong>
+    </div>
+
+    <div class="hero">
+        <h1>Found a Compass<br>at a Boot Sale?</h1>
+        <p class="sub">Dave knows what it is. Dave knows what it's worth. Dave doesn't make you feel stupid for asking.</p>
+    </div>
+
+    <div class="container">
+
+        <div class="section">
+            <h2>⚓ The Person Dave Built This For</h2>
+            <p>You found something at a car boot. A brass sextant. A teak binnacle. A fog horn that still works. A compass in a mahogany box with a maker's name you've never heard of and a date scratched inside the lid.</p>
+            <p>Or maybe you just bought a boat. A proper old wooden thing that's been on a mooring for fifteen years, and the previous owner left a hold full of kit you can't identify and don't know how to use. And you don't know where to start. And you're embarrassed to ask because every sailing forum is full of people who seem to have been born knowing port from starboard.</p>
+            <p>Or maybe you've been sailing for years, and you just want someone to tell you what that thing in the back of the chandlery actually is.</p>
+            <p>Whoever you are: Dave's got you.</p>
+        </div>
+
+        <div class="pull-quote">
+            <p>"No shame in asking, mate. The shame is in NOT asking."</p>
+        </div>
+
+        <div class="section">
+            <h2>🧱 What The Sea Felt Like Before This</h2>
+            <p>Sailing has a gatekeeping problem. Not because sailors are bad people — most of them are brilliant. But the culture makes beginners feel like they're intruding on something sacred. The forums are technical. The books assume knowledge. The chandleries assume you already know what you want.</p>
+            <p>Vintage marine kit is even worse. If you find something at a market and want to know what it's worth, your options are: find an expert (good luck), post in a forum (brace for condescension), or just guess. eBay completed listings if you can figure out what to search for.</p>
+            <p>The knowledge exists. It's just locked up inside people who don't have a tool to share it. Until now.</p>
+        </div>
+
+        <div class="section">
+            <h2>📸 What Sail-Oid Does</h2>
+            <p>Take a photo of the kit. The AI identifies it — maker, era, likely value, what it was used for. You can ask follow-up questions. You can find out if it's rare or common, worth restoring or worth selling.</p>
+            <p>For sailors: ask about your boat, your rigging, your safety equipment. Get answers in plain English, not RYA handbook language. The sea is big and honest. We match that energy.</p>
+        </div>
+
+        <!-- Dave Block -->
+        <div class="dave-block">
+            <h3>⚓ Captain Dave the Rave</h3>
+            <p>Dave is a real person. Bristol raver. Drum &amp; bass at Lakota. Free parties in fields. Trance festivals. PLUR in his blood before he knew what it meant.</p>
+            <p>Then the pivot came. The way pivots do. The dance floor led to the water. He became a fisherman, then a sailor, then a PADI Scuba Dive Master, then a qualified Captain. The sea became his new rave — same freedom, same respect, same community of people looking out for each other in the dark.</p>
+            <p>Dave is the voice of Sail-Oid. Patient with beginners, encyclopaedic about boats, zero tolerance for pretension. He's seen blokes spend fifty grand on a yacht and not know port from starboard. He doesn't judge them. He teaches them.</p>
+            <div class="dave-quote">"If you remember when music had weight, you'll understand why the sea calls you."</div>
+        </div>
+
+        <div class="pull-quote">
+            <p>"PLUR on the water. The sea doesn't discriminate and neither do we."</p>
+        </div>
+
+        <!-- Value Stack -->
+        <div class="value-box">
+            <h3>💰 What This Would Cost Elsewhere</h3>
+            <div class="value-row">
+                <span class="label">Marine antique valuation service</span>
+                <span class="price">£50+ per item</span>
+            </div>
+            <div class="value-row">
+                <span class="label">Sailing tuition (per hour)</span>
+                <span class="price">£40–80</span>
+            </div>
+            <div class="value-row">
+                <span class="label">Access to someone who actually knows</span>
+                <span class="price">£—</span>
+            </div>
+            <div class="value-row">
+                <span class="label">A community that doesn't make you feel stupid</span>
+                <span class="price">£—</span>
+            </div>
+            <div class="value-row">
+                <span class="label">What Sail-Oid costs</span>
+                <span class="price free">Free. Forever.</span>
+            </div>
+            <p class="value-note">Same coffeeware model as the rest of FeelFamous. Help first. Always.</p>
+        </div>
+
+        <div class="section">
+            <h2>🏘️ The Marina Village</h2>
+            <p>This isn't just a tool. It's a harbour.</p>
+            <p>The Marina Village works like a real marina — but instead of pontoons full of boats, they're full of people. Sailors, collectors, beginners, dreamers, vintage kit obsessives, ravers who grew up and found the sea waiting for them.</p>
+            <p>Get a berth. Connect with others. No gatekeeping. No marina queens polishing boats that never leave. Just people who love the water and want to share what they know.</p>
+        </div>
+
+        <div class="section">
+            <h2>💙 Patreon: Keep The Harbour Running</h2>
+            <p>Free forever. That's not a promise we might walk back when the VC money runs out. There is no VC. There's a magician in a van, a raver-turned-captain, and a community that looks after each other.</p>
+            <p>If Dave helped you identify something. If you felt less lost. If you just like knowing this exists — Patreon is how you say so.</p>
+
+            <div class="tiers">
+                <div class="tier">
+                    <div class="name">Villager</div>
+                    <div class="price-tag">£3/mo</div>
+                    <div class="desc">You're crew. That's all you need to be.</div>
+                </div>
+                <div class="tier">
+                    <div class="name">Elder</div>
+                    <div class="price-tag">£7/mo</div>
+                    <div class="desc">The community that keeps the lights on the harbour wall.</div>
+                </div>
+                <div class="tier">
+                    <div class="name">Founder</div>
+                    <div class="price-tag">£15/mo</div>
+                    <div class="desc">You believed before the tide came in. The marina remembers.</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- CTA -->
+        <div class="cta-block">
+            <h2>⛵ Come Aboard. No Experience Needed.</h2>
+            <p>Take a photo. Ask Dave. Find out what you've got.<br>Whatever brought you to the water — you belong here.</p>
+            <div style="display:flex;flex-wrap:wrap;gap:14px;justify-content:center;">
+                <a href="/" class="btn btn-ocean">⛵ Use Sail-Oid Free</a>
+                <a href="https://www.patreon.com/chrisptee" class="btn btn-outline">Join the Marina</a>
+            </div>
+        </div>
+
+    </div>
+
+    <div class="footer">
+        <span class="sacred">World domination through kindness. One tide at a time.</span>
+        <a href="/">⛵ Sail-Oid</a> &middot;
+        <a href="/#identify">Identify Kit</a> &middot;
+        <a href="/#marina">The Marina</a> &middot;
+        <strong style="color:var(--foam)">📖 Our Story</strong> &middot;
+        <a href="https://feelfamous.co.uk">FeelFamous</a>
+        <br>
+        <span style="font-size:13px;opacity:0.5;margin-top:8px;display:block;">Built by Chris P Tee &mdash; AuDHD, Bristol, been at it since before you were online.</span>
+    </div>
+
+</body>
+</html>

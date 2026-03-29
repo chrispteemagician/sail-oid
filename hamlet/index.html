@@ -1,0 +1,384 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Marina Hamlet | Sail-Oid Village</title>
+    <meta name="description" content="A hamlet in the Sail-Oid Marina Village">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Caveat:wght@400;700&family=Outfit:wght@300;400;600;800&display=swap" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <style>
+        :root {
+            --deep: #071e33;
+            --accent: #0ea5e9;
+            --gold: #fbbf24;
+            --gold-dark: #d97706;
+            --cream: #e0f2fe;
+            --text: #bae6fd;
+            --text-muted: #7dd3fc;
+            --card-bg: rgba(14,165,233,0.06);
+            --card-border: rgba(14,165,233,0.2);
+        }
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            font-family: 'Outfit', sans-serif;
+            background: var(--deep);
+            color: var(--text);
+            min-height: 100vh;
+            font-size: 18px;
+            line-height: 1.7;
+        }
+        .font-hand { font-family: 'Caveat', cursive; }
+
+        /* Loading / error */
+        #loadingState, #errorState {
+            display: flex; align-items: center; justify-content: center;
+            min-height: 60vh; text-align: center; padding: 40px 20px;
+            flex-direction: column; gap: 16px;
+        }
+        #loadingState p, #errorState p { color: var(--text-muted); }
+        #errorState h2 { font-family: 'Caveat', cursive; font-size: 2rem; color: var(--gold); }
+        .spinner {
+            width: 40px; height: 40px;
+            border: 3px solid rgba(14,165,233,0.2);
+            border-top-color: var(--accent);
+            border-radius: 50%;
+            animation: spin 0.8s linear infinite;
+        }
+        @keyframes spin { to { transform: rotate(360deg); } }
+
+        /* Back nav */
+        .back-nav {
+            padding: 16px 20px;
+            border-bottom: 1px solid var(--card-border);
+        }
+        .back-nav a {
+            color: var(--text-muted);
+            text-decoration: none;
+            font-size: 0.9rem;
+            transition: color 0.2s;
+        }
+        .back-nav a:hover { color: var(--gold); }
+
+        /* Hero */
+        .hamlet-hero {
+            background: linear-gradient(135deg, rgba(14,165,233,0.12) 0%, rgba(14,165,233,0.03) 100%);
+            padding: 60px 20px 40px;
+            text-align: center;
+            border-bottom: 1px solid var(--card-border);
+        }
+        .hamlet-hero .emoji { font-size: 3rem; margin-bottom: 16px; display: block; }
+        .hamlet-hero h1 {
+            font-family: 'Caveat', cursive;
+            font-size: clamp(2.5rem, 8vw, 4rem);
+            color: var(--cream);
+            margin-bottom: 8px;
+        }
+        .hamlet-hero .craft {
+            color: var(--gold);
+            font-size: 1.1rem;
+            font-weight: 600;
+        }
+        .hamlet-hero .village-tag {
+            display: inline-block;
+            margin-top: 12px;
+            background: rgba(14,165,233,0.1);
+            border: 1px solid var(--card-border);
+            padding: 4px 16px;
+            border-radius: 100px;
+            font-size: 0.8rem;
+            color: var(--text-muted);
+        }
+
+        /* Main content */
+        .hamlet-body {
+            max-width: 680px;
+            margin: 0 auto;
+            padding: 40px 20px 80px;
+        }
+
+        /* Story */
+        .story-block {
+            background: var(--card-bg);
+            border: 1px solid var(--card-border);
+            border-radius: 20px;
+            padding: 28px;
+            margin-bottom: 28px;
+            font-size: 1.05rem;
+            color: var(--text);
+        }
+
+        /* Products */
+        .products-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 16px;
+            margin-bottom: 28px;
+        }
+        .product-card {
+            background: var(--card-bg);
+            border: 1px solid var(--card-border);
+            border-radius: 16px;
+            padding: 20px;
+            text-align: center;
+        }
+        .product-card .emoji { font-size: 2.2rem; display: block; margin-bottom: 8px; }
+        .product-card .name { font-weight: 700; color: var(--cream); margin-bottom: 4px; }
+        .product-card .desc { font-size: 0.85rem; color: var(--text-muted); }
+
+        /* Links */
+        .links-block {
+            margin-bottom: 28px;
+        }
+        .links-block h3 {
+            font-family: 'Caveat', cursive;
+            font-size: 1.4rem;
+            color: var(--gold);
+            margin-bottom: 14px;
+        }
+        .link-buttons {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+        }
+        .link-btn {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            padding: 12px 20px;
+            background: var(--card-bg);
+            border: 1px solid var(--card-border);
+            border-radius: 12px;
+            color: var(--text);
+            text-decoration: none;
+            font-size: 0.95rem;
+            font-weight: 600;
+            transition: border-color 0.2s, color 0.2s;
+        }
+        .link-btn:hover { border-color: var(--gold); color: var(--gold); }
+
+        /* Quote */
+        .quote-block {
+            background: linear-gradient(135deg, rgba(251,191,36,0.06), rgba(14,165,233,0.04));
+            border: 1px solid rgba(251,191,36,0.2);
+            border-radius: 20px;
+            padding: 28px;
+            text-align: center;
+            margin-bottom: 28px;
+        }
+        .quote-block blockquote {
+            font-family: 'Caveat', cursive;
+            font-size: 1.5rem;
+            color: var(--cream);
+            margin-bottom: 8px;
+            line-height: 1.4;
+        }
+        .quote-block cite { font-size: 0.9rem; color: var(--gold); }
+
+        /* Patreon CTA */
+        .patreon-cta {
+            background: var(--card-bg);
+            border: 1px solid var(--card-border);
+            border-radius: 20px;
+            padding: 28px;
+            text-align: center;
+            margin-bottom: 28px;
+        }
+        .patreon-cta p { color: var(--text-muted); font-size: 0.95rem; margin-bottom: 16px; }
+        .patreon-cta a {
+            display: inline-block;
+            background: var(--gold);
+            color: var(--deep);
+            padding: 12px 28px;
+            border-radius: 12px;
+            font-weight: 700;
+            text-decoration: none;
+            transition: background 0.2s;
+        }
+        .patreon-cta a:hover { background: var(--gold-dark); }
+
+        /* Footer */
+        footer {
+            background: rgba(0,0,0,0.3);
+            border-top: 1px solid var(--card-border);
+            padding: 32px 20px;
+            text-align: center;
+        }
+        footer p { color: var(--text-muted); font-size: 0.85rem; margin-bottom: 8px; }
+        footer a { color: var(--text-muted); text-decoration: none; }
+        footer a:hover { color: var(--gold); }
+        .tagline { font-family: 'Caveat', cursive; font-size: 1.2rem; color: var(--gold); margin-top: 8px; }
+
+        #hamlet { display: none; }
+
+        @media (max-width: 480px) {
+            .products-grid { grid-template-columns: 1fr; }
+        }
+    </style>
+</head>
+<body>
+
+    <div id="loadingState">
+        <div class="spinner"></div>
+        <p>Finding your berth...</p>
+    </div>
+
+    <div id="errorState" style="display:none">
+        <h2>⛵ Berth Not Found</h2>
+        <p>This hamlet doesn't exist yet — or the tide took it.</p>
+        <a href="https://sail-oid.co.uk" style="color:var(--gold);margin-top:16px;display:inline-block;">Back to the Marina</a>
+    </div>
+
+    <div id="hamlet">
+        <nav class="back-nav">
+            <a href="https://sail-oid.co.uk">← Back to the Marina</a>
+        </nav>
+
+        <header class="hamlet-hero">
+            <span class="emoji" id="heroEmoji">⛵</span>
+            <h1 id="hamletName"></h1>
+            <p class="craft" id="hamletCraft"></p>
+            <span class="village-tag">⛵ Sail-Oid Marina Village</span>
+        </header>
+
+        <main class="hamlet-body">
+            <div id="storyBlock" class="story-block" style="display:none"></div>
+            <div id="productsGrid" class="products-grid" style="display:none"></div>
+            <div id="linksBlock" class="links-block" style="display:none">
+                <h3>Find Me</h3>
+                <div class="link-buttons" id="linkButtons"></div>
+            </div>
+            <div id="quoteBlock" class="quote-block" style="display:none">
+                <blockquote id="quoteText"></blockquote>
+                <cite id="quoteAttr"></cite>
+            </div>
+            <div class="patreon-cta">
+                <p>This hamlet is part of the Sail-Oid Marina Village — free forever, built on kindness.</p>
+                <a href="https://www.patreon.com/chrisptee" target="_blank">⛵ Support on Patreon</a>
+            </div>
+        </main>
+
+        <footer>
+            <p><a href="https://sail-oid.co.uk">sail-oid.co.uk</a> &bull; Part of <a href="https://feelfamous.co.uk">FeelFamous</a></p>
+            <p class="tagline">"World domination through kindness. One ember at a time."</p>
+        </footer>
+    </div>
+
+    <script>
+        const SUPABASE_URL = 'https://pdnjeynugptnavkdbmxh.supabase.co';
+        const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InBkbmpleW51Z3B0bmF2a2RibXhoIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjkwMTEzMDAsImV4cCI6MjA4NDU4NzMwMH0.GawisR01EykMtdauBMxenmHF2NXDMzDOJl8WgzkwFQo';
+
+        const LINK_ICONS = {
+            website: '🌐', instagram: '📸', tiktok: '🎵',
+            facebook: '👥', twitter: '𝕏', linkedin: '💼', email: '✉️'
+        };
+        const LINK_LABELS = {
+            website: 'Website', instagram: 'Instagram', tiktok: 'TikTok',
+            facebook: 'Facebook', twitter: 'X / Twitter', linkedin: 'LinkedIn', email: 'Email'
+        };
+
+        async function load() {
+            const slug = window.location.pathname.replace(/^\/hamlet\//, '').replace(/\/$/, '');
+            if (!slug || slug === 'signup') {
+                window.location.href = '/hamlet/signup';
+                return;
+            }
+
+            try {
+                const sb = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY, {
+                    auth: { persistSession: false, autoRefreshToken: false, detectSessionInUrl: false }
+                });
+
+                const { data, error } = await sb
+                    .from('hamlet_data')
+                    .select('*')
+                    .eq('slug', slug)
+                    .limit(1);
+
+                if (error || !data || data.length === 0) {
+                    showError();
+                    return;
+                }
+
+                render(data[0]);
+            } catch(e) {
+                showError();
+            }
+        }
+
+        function render(d) {
+            document.title = d.name + ' | Sail-Oid Village';
+
+            // Pick hero emoji from first product, or default
+            const heroEmoji = (d.products && d.products.length > 0 && d.products[0].emoji)
+                ? d.products[0].emoji : '⛵';
+            document.getElementById('heroEmoji').textContent = heroEmoji;
+            document.getElementById('hamletName').textContent = d.name;
+            if (d.craft) document.getElementById('hamletCraft').textContent = d.craft;
+
+            // Story
+            if (d.story) {
+                const el = document.getElementById('storyBlock');
+                el.textContent = d.story;
+                el.style.display = 'block';
+            }
+
+            // Products
+            if (d.products && d.products.length > 0) {
+                const grid = document.getElementById('productsGrid');
+                grid.innerHTML = d.products.map(function(p) {
+                    return '<div class="product-card">' +
+                        '<span class="emoji">' + (p.emoji || '⛵') + '</span>' +
+                        '<div class="name">' + esc(p.name) + '</div>' +
+                        (p.desc ? '<div class="desc">' + esc(p.desc) + '</div>' : '') +
+                        '</div>';
+                }).join('');
+                grid.style.display = 'grid';
+            }
+
+            // Links
+            if (d.links) {
+                const btns = Object.entries(d.links)
+                    .filter(function(e) { return e[1]; })
+                    .map(function(e) {
+                        const key = e[0], val = e[1];
+                        const href = key === 'email' ? 'mailto:' + val : val;
+                        return '<a href="' + esc(href) + '" target="_blank" rel="noopener" class="link-btn">' +
+                            (LINK_ICONS[key] || '🔗') + ' ' + (LINK_LABELS[key] || key) + '</a>';
+                    }).join('');
+                if (btns) {
+                    document.getElementById('linkButtons').innerHTML = btns;
+                    document.getElementById('linksBlock').style.display = 'block';
+                }
+            }
+
+            // Quote
+            if (d.quote_text) {
+                document.getElementById('quoteText').textContent = '\u201c' + d.quote_text + '\u201d';
+                if (d.quote_attribution) {
+                    document.getElementById('quoteAttr').textContent = '— ' + d.quote_attribution;
+                }
+                document.getElementById('quoteBlock').style.display = 'block';
+            }
+
+            document.getElementById('loadingState').style.display = 'none';
+            document.getElementById('hamlet').style.display = 'block';
+        }
+
+        function showError() {
+            document.getElementById('loadingState').style.display = 'none';
+            document.getElementById('errorState').style.display = 'flex';
+        }
+
+        function esc(str) {
+            var d = document.createElement('div');
+            d.textContent = str;
+            return d.innerHTML;
+        }
+
+        load();
+    </script>
+</body>
+</html>

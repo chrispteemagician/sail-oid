@@ -1,0 +1,35 @@
+[build]
+  publish = "."
+  command = ""
+
+[build.environment]
+  SECRETS_SCAN_OMIT_KEYS = "SUPABASE_API_KEY"
+
+[functions]
+  directory = "netlify/functions"
+
+[[redirects]]
+  from = "/auth/patreon"
+  to = "/index.html"
+  status = 200
+
+[[redirects]]
+  from = "/hamlet/signup"
+  to = "/hamlet/signup.html"
+  status = 200
+
+[[redirects]]
+  from = "/hamlet/edit"
+  to = "/hamlet/edit.html"
+  status = 200
+
+[[redirects]]
+  from = "/hamlet/*"
+  to = "/hamlet/index.html"
+  status = 200
+
+[[headers]]
+  for = "/*"
+  [headers.values]
+    X-Frame-Options = "DENY"
+    X-Content-Type-Options = "nosniff"

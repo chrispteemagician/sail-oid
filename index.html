@@ -1,0 +1,1410 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0">
+    <title>The Marina Village | Sail-Oid — Captain Dave's Marina</title>
+    <meta name="description" content="Captain Dave the Rave's Marina Village. Sailing, boats, diving, marine gear. Identify anything nautical. Free forever.">
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script src="https://cdn.jsdelivr.net/npm/qrcode@1.5.3/build/qrcode.min.js"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;600;800;900&family=Caveat:wght@700&display=swap" rel="stylesheet">
+    <style>
+        #__tailwind_container, .tailwind-indicator { display: none !important; }
+        :root {
+            --deep: #0c3547;
+            --mid: #0e6080;
+            --accent: #0ea5e9;
+            --highlight: #38bdf8;
+            --gold: #fbbf24;
+            --abyss: #071e33;
+            --foam: #f0f9ff;
+            --sand: #fef3c7;
+        }
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+        html { scroll-behavior: smooth; font-size: 18px; }
+        body { font-family: 'Outfit', sans-serif; background: var(--abyss); color: #e2e8f0; }
+        .font-hand { font-family: 'Caveat', cursive; }
+        .text-xs { font-size: 0.8rem !important; }
+        .text-sm { font-size: 0.9rem !important; }
+        .wave-bg {
+            background: linear-gradient(180deg, #071e33 0%, #0c3547 40%, #0e6080 70%, #0c4a6e 100%);
+            position: relative; overflow: hidden;
+        }
+        .wave-bg::after {
+            content: ''; position: absolute; bottom: -5px; left: 0; width: 200%; height: 40px;
+            background: url("data:image/svg+xml,%3Csvg viewBox='0 0 1200 40' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M0 20 Q150 0 300 20 T600 20 T900 20 T1200 20 V40 H0 Z' fill='%23071e33'/%3E%3C/svg%3E") repeat-x;
+            background-size: 1200px 40px;
+            animation: waves 60s linear infinite;
+        }
+        @keyframes waves { 0% { transform: translateX(0); } 100% { transform: translateX(-50%); } }
+        .harbour-card {
+            background: linear-gradient(135deg, rgba(14,96,128,0.12) 0%, rgba(14,165,233,0.06) 100%);
+            border: 1px solid rgba(14,165,233,0.2); border-left: 4px solid var(--accent); transition: all 0.3s;
+        }
+        .harbour-card:hover {
+            border-color: var(--highlight);
+            background: linear-gradient(135deg, rgba(14,96,128,0.2) 0%, rgba(14,165,233,0.1) 100%);
+            transform: translateY(-2px); box-shadow: 0 8px 30px rgba(14,165,233,0.15);
+        }
+        .upload-box {
+            background: rgba(14,165,233,0.08); border: 2px dashed rgba(14,165,233,0.3);
+            border-radius: 16px; padding: 48px 20px; text-align: center; cursor: pointer; transition: all 0.2s; min-height: 48px;
+        }
+        .upload-box:hover { background: rgba(14,165,233,0.15); border-color: var(--accent); }
+        .tab-active { background: var(--mid); color: white; font-weight: bold; }
+        .tab-inactive { background: transparent; color: var(--accent); font-weight: 600; border: 1px solid rgba(14,165,233,0.3); }
+        .tab-inactive:hover { background: rgba(14,165,233,0.1); }
+        .learn-tab-active { background: var(--mid); color: white; font-weight: bold; border-radius: 12px; }
+        .learn-tab-inactive { background: transparent; color: var(--highlight); font-weight: 600; border-radius: 12px; }
+        .learn-tab-inactive:hover { background: rgba(14,165,233,0.1); }
+        .chat-container { background: var(--abyss); border: 1px solid rgba(14,165,233,0.3); border-radius: 16px; overflow: hidden; }
+        .chat-messages { height: 400px; overflow-y: auto; padding: 16px; scroll-behavior: smooth; }
+        .chat-messages::-webkit-scrollbar { width: 6px; }
+        .chat-messages::-webkit-scrollbar-track { background: transparent; }
+        .chat-messages::-webkit-scrollbar-thumb { background: rgba(14,165,233,0.3); border-radius: 3px; }
+        .msg-dave { background: linear-gradient(135deg, #0c3547, #0c4a6e); border-radius: 16px 16px 16px 4px; max-width: 85%; }
+        .msg-user { background: linear-gradient(135deg, #0e6080, #0ea5e9); border-radius: 16px 16px 4px 16px; max-width: 85%; margin-left: auto; }
+        .qa-item { border-bottom: 1px solid rgba(14,165,233,0.15); }
+        .qa-question { cursor: pointer; transition: all 0.2s; min-height: 48px; display: flex; align-items: center; }
+        .qa-question:hover { color: var(--highlight); }
+        .qa-answer { max-height: 0; overflow: hidden; transition: max-height 0.4s ease, padding 0.4s ease; }
+        .qa-answer.open { max-height: 600px; padding-bottom: 16px; }
+        .typing-dots span { display: inline-block; width: 8px; height: 8px; background: var(--accent); border-radius: 50%; margin: 0 2px; animation: bounce 1.4s infinite; }
+        .typing-dots span:nth-child(2) { animation-delay: 0.2s; }
+        .typing-dots span:nth-child(3) { animation-delay: 0.4s; }
+        @keyframes bounce { 0%, 80%, 100% { transform: translateY(0); } 40% { transform: translateY(-8px); } }
+        .slow-spin { display: inline-block; animation: slowspin 8s linear infinite; }
+        @keyframes slowspin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
+        .bubble { position: absolute; border-radius: 50%; background: rgba(56,189,248,0.08); animation: floatUp linear infinite; }
+        @keyframes floatUp { 0% { transform: translateY(0) scale(1); opacity: 0.6; } 100% { transform: translateY(-300px) scale(0.3); opacity: 0; } }
+        .section-fade { opacity: 0; transform: translateY(20px); transition: all 0.6s ease; }
+        .section-fade.visible { opacity: 1; transform: translateY(0); }
+        .usecase-btn { background: rgba(14,165,233,0.06); border: 2px solid rgba(14,165,233,0.2); border-radius: 12px; padding: 10px 6px; text-align: center; cursor: pointer; transition: all 0.15s; min-height: 70px; width: 100%; color: #e2e8f0; }
+        .usecase-btn.active { background: rgba(14,165,233,0.15); border-color: var(--accent); }
+        .usecase-btn:hover { border-color: var(--accent); }
+        .w3w-suggestion { padding: 10px 14px; cursor: pointer; border-bottom: 1px solid rgba(14,165,233,0.15); font-family: 'Caveat', cursive; font-size: 1.1rem; color: #e2e8f0; }
+        .w3w-suggestion:last-child { border-bottom: none; }
+        .w3w-suggestion:hover { background: rgba(14,165,233,0.08); }
+        .dot-nav { position: fixed; right: 12px; top: 50%; transform: translateY(-50%); z-index: 40; display: flex; flex-direction: column; gap: 10px; }
+        .dot-nav a { width: 12px; height: 12px; border-radius: 50%; background: rgba(14,165,233,0.3); transition: all 0.3s; display: block; }
+        .dot-nav a.active { background: var(--highlight); transform: scale(1.3); }
+        .dot-nav a:hover { background: var(--accent); }
+        button, a, .upload-box { min-height: 48px; }
+        @media (max-width: 640px) { .chat-messages { height: 300px; } .dot-nav { display: none; } html { font-size: 16px; } }
+        @media (prefers-reduced-motion: reduce) { *, *::before, *::after { animation-duration: 0.01ms !important; transition-duration: 0.01ms !important; } }
+        :focus-visible { outline: 2px solid var(--highlight); outline-offset: 2px; }
+    </style>
+</head>
+<body>
+    <a href="#main" class="sr-only focus:not-sr-only focus:absolute focus:top-2 focus:left-2 bg-sky-600 text-white px-4 py-2 rounded z-50">Skip to main content</a>
+    <nav class="dot-nav" aria-label="Section navigation">
+        <a href="#pageHome" title="Home" class="active"></a>
+        <a href="#pageLearn" title="Learn"></a>
+        <a href="#pageQA" title="Q&A"></a>
+        <a href="#pageDave" title="Ask Captain Dave"></a>
+        <a href="#pageGear" title="Gear"></a>
+        <a href="#pageMeet" title="Meet"></a>
+        <a href="#pageVillage" title="Village"></a>
+    </nav>
+
+    <div id="ageModal" class="hidden fixed inset-0 bg-black bg-opacity-80 flex items-center justify-center z-50 p-4">
+        <div class="rounded-3xl p-8 max-w-md border border-sky-800/30" style="background:#0c3547;">
+            <div class="text-center text-4xl mb-3">&#9973;</div>
+            <h2 class="text-2xl font-bold text-white mb-4 text-center">Welcome to The Marina Village</h2>
+            <p class="text-sky-200 mb-6 text-center">This is an adult-focused educational community. Kids are welcome with parent permission.</p>
+            <div class="space-y-3">
+                <button onclick="confirmAge('adult')" class="w-full bg-green-600 hover:bg-green-700 text-white font-bold py-4 rounded-xl transition">I'm 18+ (Continue)</button>
+                <button onclick="confirmAge('parent')" class="w-full bg-sky-600 hover:bg-sky-700 text-white font-bold py-4 rounded-xl transition">I'm a Parent/Guardian</button>
+                <button onclick="confirmAge('under18')" class="w-full bg-purple-600 hover:bg-purple-700 text-white font-bold py-4 rounded-xl transition">I'm Under 18 (Need Parent OK)</button>
+            </div>
+            <p class="text-xs text-sky-500 mt-6 text-center">We're building a safe space for skill-sharing across generations. No social media BS. Just real humans helping real humans.</p>
+        </div>
+    </div>
+
+    <header id="pageHome" class="wave-bg text-center py-16 px-4 relative min-h-[50vh] flex items-center justify-center">
+        <div class="bubble" style="width:20px;height:20px;left:10%;bottom:20%;animation-duration:6s;"></div>
+        <div class="bubble" style="width:14px;height:14px;left:30%;bottom:10%;animation-duration:8s;animation-delay:1s;"></div>
+        <div class="bubble" style="width:18px;height:18px;left:60%;bottom:15%;animation-duration:7s;animation-delay:2s;"></div>
+        <div class="bubble" style="width:12px;height:12px;left:80%;bottom:25%;animation-duration:9s;animation-delay:0.5s;"></div>
+        <div class="bubble" style="width:16px;height:16px;left:45%;bottom:5%;animation-duration:6.5s;animation-delay:3s;"></div>
+        <div class="max-w-3xl mx-auto relative z-10">
+            <div class="text-7xl mb-4">&#9973;</div>
+            <h1 class="text-5xl md:text-7xl font-black text-white mb-2 tracking-tight">Sail-Oid</h1>
+            <p class="text-xl text-sky-300 font-semibold mb-1">The Marina Village</p>
+            <p class="font-hand text-2xl text-amber-300">"The sea became my new rave -- same freedom, same respect, same community."</p>
+            <p class="text-sky-400 text-sm mt-4 max-w-lg mx-auto">A FeelFamous Village for sailors, divers, boat lovers, and anyone who's ever felt the pull of the open water.</p>
+            <div class="mt-8 flex flex-wrap gap-3 justify-center">
+                <a href="#pageLearn" class="bg-sky-700 hover:bg-sky-800 text-white px-5 py-3 rounded-xl font-semibold transition text-sm">&#9973; Learn</a>
+                <a href="#pageDave" class="bg-teal-700 hover:bg-teal-800 text-white px-5 py-3 rounded-xl font-semibold transition text-sm">&#9875; Ask the Captain</a>
+                <a href="https://www.patreon.com/chrisptee" target="_blank" class="bg-amber-500 hover:bg-amber-600 text-black px-5 py-3 rounded-xl font-bold transition text-sm">&#9973; Support on Patreon</a>
+            </div>
+        </div>
+    </header>
+
+    <nav class="bg-[#071e33] border-b border-sky-900/50 sticky top-0 z-40" aria-label="Main navigation">
+        <div class="max-w-4xl mx-auto px-4 flex gap-1 overflow-x-auto py-2 text-sm">
+            <a href="#pageHome" class="whitespace-nowrap px-3 py-2 rounded-lg bg-sky-600/20 text-sky-300 hover:bg-sky-600/30 transition font-semibold">&#9973; Home</a>
+            <a href="#pageLearn" class="whitespace-nowrap px-3 py-2 rounded-lg text-sky-400 hover:bg-sky-600/20 transition">&#127754; Learn</a>
+            <a href="#pageQA" class="whitespace-nowrap px-3 py-2 rounded-lg text-sky-400 hover:bg-sky-600/20 transition">&#9875; Q&amp;A</a>
+            <a href="#pageDave" class="whitespace-nowrap px-3 py-2 rounded-lg text-amber-400 hover:bg-amber-600/20 transition font-semibold">&#128674; Captain</a>
+            <a href="#pageGear" class="whitespace-nowrap px-3 py-2 rounded-lg text-sky-400 hover:bg-sky-600/20 transition">&#129517; Gear</a>
+            <a href="#pageMeet" class="whitespace-nowrap px-3 py-2 rounded-lg text-sky-400 hover:bg-sky-600/20 transition">📍 Meet</a>
+            <a href="#pageVillage" class="whitespace-nowrap px-3 py-2 rounded-lg text-sky-400 hover:bg-sky-600/20 transition">&#127960; Village</a>
+            <a href="/story.html" class="whitespace-nowrap px-3 py-2 rounded-lg text-amber-300 hover:bg-amber-600/20 transition">&#128218; Our Story</a>
+        </div>
+    </nav>
+
+    <div class="bg-sky-900/30 text-center py-3 px-4 border-b border-sky-900/30">
+        <p class="text-sm text-sky-200">
+            <strong>Free forever.</strong> Identify, learn, ask. Join the
+            <a href="https://feelfamous.com" class="text-amber-400 font-bold hover:text-amber-300 transition">FeelFamous Family</a>
+            to support the village. From <strong>£3/month on Patreon</strong> — free forever either way.
+        </p>
+    </div>
+
+    <div id="userStatusBar" class="hidden bg-gradient-to-r from-amber-500 to-sky-500 text-black py-2 px-4">
+        <div class="max-w-4xl mx-auto flex items-center justify-between text-sm">
+            <div class="font-bold"><span id="userBadge"></span> <span id="userName"></span> - <span id="userKudos">0</span> Kudos</div>
+            <button onclick="signOut()" class="text-xs underline">Sign out</button>
+        </div>
+    </div>
+
+    <main id="main" class="max-w-4xl mx-auto px-4 py-8">
+
+        <section class="section-fade mb-12">
+            <div class="bg-gradient-to-br from-sky-900/40 to-teal-900/20 rounded-2xl p-8 border border-sky-800/30">
+                <div class="flex items-start gap-4">
+                    <div class="text-5xl">&#9875;</div>
+                    <div>
+                        <h2 class="text-2xl font-black text-white mb-2">Captain's Cabin</h2>
+                        <p class="text-sky-200 leading-relaxed mb-4">Right then! I'm Captain Dave the Rave -- Bristol born and bred. Spent the 90s on dance floors at Lakota and Trinity, living the PLUR life. Then the sea called. Went from warehouse raves to open water -- became a fisherman, then a sailor, got my PADI Dive Master, and finally qualified as a Captain. The sea became my new rave, mate. Same freedom, same respect for nature, same community.</p>
+                        <p class="text-sky-300 text-sm">Whether you want to learn to sail, identify a boat, sort your rigging out, or just chat about life on the water -- you've come to the right berth. No gatekeeping here. We were all landlubbers once. Grab a brew and pull up a cleat.</p>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <section class="section-fade mb-12">
+            <h2 class="text-3xl font-black text-white mb-2">&#9973; Sail-Oid AI</h2>
+            <p class="text-sky-400 mb-6">Snap a photo. The Captain identifies it. Boats, sails, marine equipment, knots -- anything nautical.</p>
+            <div class="flex gap-2 mb-6">
+                <button id="identifyTab" onclick="switchTab('identify')" class="flex-1 py-3 rounded-xl tab-active transition font-semibold">&#9973; Identify</button>
+                <button id="roastTab" onclick="switchTab('roast')" class="flex-1 py-3 rounded-xl tab-inactive transition font-semibold">&#127988;&#8205;&#9760;&#65039; Roast My Rig</button>
+            </div>
+            <div id="identifyView">
+                <div class="grid grid-cols-2 gap-4 mb-6">
+                    <div class="upload-box" onclick="document.getElementById('cameraInput').click()">
+                        <div class="text-5xl mb-3">&#128247;</div>
+                        <p class="font-bold text-white">Camera</p>
+                        <p class="text-sky-400 text-xs mt-1">Take a photo</p>
+                    </div>
+                    <div class="upload-box" onclick="document.getElementById('galleryInput').click()">
+                        <div class="text-5xl mb-3">&#128444;</div>
+                        <p class="font-bold text-white">Gallery</p>
+                        <p class="text-sky-400 text-xs mt-1">Choose a photo</p>
+                    </div>
+                </div>
+                <p class="text-center text-sky-500 text-sm mb-6">Boats, sails, knots, marine equipment -- the Captain's seen it all.</p>
+                <input type="file" id="cameraInput" accept="image/*" capture="environment" class="hidden" onchange="handleUpload('identify', this)">
+                <input type="file" id="galleryInput" accept="image/*" class="hidden" onchange="handleUpload('identify', this)">
+            </div>
+            <div id="roastView" class="hidden">
+                <div class="grid grid-cols-2 gap-4 mb-6">
+                    <div class="upload-box" onclick="document.getElementById('roastCamera').click()">
+                        <div class="text-5xl mb-3">&#128247;</div>
+                        <p class="font-bold text-white">Camera</p>
+                    </div>
+                    <div class="upload-box" onclick="document.getElementById('roastGallery').click()">
+                        <div class="text-5xl mb-3">&#128444;</div>
+                        <p class="font-bold text-white">Gallery</p>
+                    </div>
+                </div>
+                <p class="text-center text-sky-500 text-sm">Show me your boat or your gear. Prepare for honest Bristol opinions.</p>
+                <input type="file" id="roastCamera" accept="image/*" capture="environment" class="hidden" onchange="handleUpload('roast', this)">
+                <input type="file" id="roastGallery" accept="image/*" class="hidden" onchange="handleUpload('roast', this)">
+            </div>
+
+            <div id="loadingView" class="hidden text-center py-12">
+                <div class="slow-spin text-7xl mb-4">&#9973;</div>
+                <p id="loadingTitle" class="text-2xl font-bold text-sky-400">Checking the chart plotter...</p>
+                <p id="loadingMessage" class="text-sky-500 mt-2">Scanning the marina...</p>
+                <p class="text-sky-700 text-sm mt-4 italic">"Patience, mate -- the sea rewards those who wait."</p>
+                <p class="text-sky-700 text-xs mt-2">This can take up to 30 seconds for an accurate result</p>
+                <div id="loadingTimer" class="text-sky-400 font-mono text-lg mt-3"></div>
+            </div>
+
+            <div id="resultView" class="hidden">
+                <div class="rounded-3xl p-8 text-white shadow-2xl mb-6" style="background: linear-gradient(135deg, #0e6080 0%, #0ea5e9 100%);">
+                    <img id="resultImage" src="" alt="Result" class="w-full rounded-xl mb-6 shadow-xl">
+                    <h3 id="resultTitle" class="text-3xl font-extrabold mb-3"></h3>
+                    <div id="resultDescription" class="text-lg opacity-90 mb-4 whitespace-pre-wrap"></div>
+                    <p id="resultPrice" class="text-yellow-300 font-bold text-xl hidden"></p>
+                    <div id="amazonLink" class="hidden mt-4">
+                        <a id="amazonBtn" href="" target="_blank" class="block text-center bg-yellow-400 hover:bg-yellow-500 text-black font-bold py-3 px-6 rounded-xl transition">&#9973; Find on Amazon</a>
+                    </div>
+                    <p id="resultAttribution" class="text-sm opacity-75 mt-4"></p>
+                </div>
+                <div class="grid grid-cols-4 gap-3 mb-6">
+                    <button onclick="downloadResult()" class="bg-green-600 hover:bg-green-700 text-white font-bold py-4 rounded-xl transition text-sm">Save</button>
+                    <button onclick="shareResult()" class="bg-purple-600 hover:bg-purple-700 text-white font-bold py-4 rounded-xl transition text-sm">Share</button>
+                    <a href="https://www.spicylister.com" target="_blank" class="bg-red-500 hover:bg-red-600 text-white font-bold py-4 rounded-xl transition text-sm text-center flex items-center justify-center">Sell</a>
+                    <button onclick="resetToHome()" class="bg-sky-600 hover:bg-sky-700 text-white font-bold py-4 rounded-xl transition text-sm">Again</button>
+                </div>
+                <div id="signInPrompt" class="bg-[#071e33] border-2 border-sky-700 rounded-2xl p-6 text-center">
+                    <p class="text-sky-200 font-semibold mb-4">Sign in to earn kudos, track your identifications, and unlock village features!</p>
+                    <div id="authForm">
+                        <input type="email" id="emailInput" placeholder="your@email.com" class="w-full px-4 py-3 bg-[#0c3547] border-2 border-sky-800 rounded-xl mb-3 text-center text-white placeholder-sky-600 focus:border-sky-400 focus:outline-none">
+                        <input type="password" id="passwordInput" placeholder="Password (min 6 chars)" class="w-full px-4 py-3 bg-[#0c3547] border-2 border-sky-800 rounded-xl mb-3 text-center text-white placeholder-sky-600 focus:border-sky-400 focus:outline-none">
+                        <button onclick="signUpOrIn('emailInput','passwordInput','authForm','authSuccess')" class="bg-sky-600 hover:bg-sky-700 text-white font-bold py-3 px-6 rounded-xl transition w-full">Sign In / Sign Up</button>
+                        <p class="text-xs text-sky-500 mt-2">New? This creates your account. Returning? Just sign in.</p>
+                    </div>
+                    <div id="authSuccess" class="hidden p-4 rounded-xl" style="background:rgba(22,163,74,0.15)">
+                        <p class="font-bold text-green-400">Welcome aboard, shipmate!</p>
+                        <p class="text-sm mt-1 text-sky-300">You're in the marina now.</p>
+                    </div>
+                    <p class="text-xs text-sky-600 mt-3">Safe, secure, no third parties.</p>
+                </div>
+                <div id="kudosEarned" class="hidden bg-amber-900/20 border-2 border-amber-500 rounded-2xl p-6 text-center mt-4">
+                    <p class="text-2xl font-bold text-white mb-2">+10 Kudos Earned! &#9973;</p>
+                    <p class="text-sm text-sky-300">Share your QR code to earn even more!</p>
+                </div>
+            </div>
+
+            <div id="broadcastSection" class="hidden mt-6">
+                <div style="background: linear-gradient(135deg, #1e1b4b 0%, #312e81 100%); color: white; border-radius: 16px; overflow: hidden; max-width: 320px; margin: 0 auto;">
+                    <div id="emergencyBanner" class="hidden bg-red-600 text-white text-center py-2 font-bold text-sm">EMERGENCY BROADCAST</div>
+                    <div class="p-3">
+                        <p class="font-bold text-xs mb-2 opacity-80" id="broadcastTitle">Village Broadcast</p>
+                        <div class="relative" style="padding-bottom: 56.25%; height: 0; overflow: hidden; border-radius: 10px;">
+                            <iframe id="broadcastVideo" src="" style="position: absolute; top: 0; left: 0; width: 100%; height: 100%; border: none;" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="bg-sky-900/20 rounded-2xl border border-sky-800/30 p-6 mt-8">
+                <h3 class="font-bold text-white mb-4">&#9973; Recent Villagers</h3>
+                <div id="activityList" class="space-y-2 text-sm text-sky-300"><p class="text-center text-sky-600">Loading...</p></div>
+            </div>
+        </section>
+
+        <section id="pageLearn" class="section-fade mb-12">
+            <h2 class="text-3xl font-black text-white mb-2">&#127754; Learn the Ropes</h2>
+            <p class="text-sky-400 mb-6">Captain Dave's field notes. No jargon without translation. PLUR on the water.</p>
+            <div class="flex gap-2 mb-6 flex-wrap">
+                <button onclick="switchLearnTab('sailing')" id="learnTab1" class="learn-tab-active px-4 py-2 transition text-sm">&#9973; Sailing Basics</button>
+                <button onclick="switchLearnTab('boats')" id="learnTab2" class="learn-tab-inactive px-4 py-2 transition text-sm">&#9875; Boat Knowledge</button>
+                <button onclick="switchLearnTab('safety')" id="learnTab3" class="learn-tab-inactive px-4 py-2 transition text-sm">&#129343; Safety &amp; Diving</button>
+            </div>
+
+            <div id="learnSailing">
+                <h3 class="text-xl font-bold text-amber-400 mb-4">&#9973; Getting Started Sailing</h3>
+                <p class="text-sky-200 text-sm mb-4">Dave's no-nonsense guide to getting on the water. Same energy as your first rave -- exciting, a bit scary, and absolutely life-changing.</p>
+                <div class="space-y-4">
+                    <div class="bg-sky-900/30 rounded-xl p-6 border border-sky-800/30">
+                        <h4 class="font-bold text-white mb-2">Points of Sail -- The Basics</h4>
+                        <p class="text-sky-200 text-sm mb-3">Right, this is the big one. Points of sail are just the angles between your boat and the wind. Think of it like a clock face with the wind coming from 12 o'clock.</p>
+                        <div class="grid md:grid-cols-2 gap-3 text-sm text-sky-200">
+                            <div><strong class="text-white">Close Hauled:</strong> Sailing as close to the wind as possible (about 45 degrees). Tight, focused, like threading through a crowd on the dance floor.</div>
+                            <div><strong class="text-white">Beam Reach:</strong> Wind hitting you side-on (90 degrees). The sweet spot. Fast, balanced, proper lovely sailing.</div>
+                            <div><strong class="text-white">Broad Reach:</strong> Wind coming from behind at an angle. Fast and fun but watch for accidental gybes.</div>
+                            <div><strong class="text-white">Running:</strong> Wind directly behind you. Sounds easy but it's the trickiest -- the boom can swing without warning.</div>
+                        </div>
+                    </div>
+                    <div class="bg-sky-900/30 rounded-xl p-6 border border-sky-800/30">
+                        <h4 class="font-bold text-white mb-2">Tacking and Gybing</h4>
+                        <p class="text-sky-200 text-sm mb-3">You can't sail directly into the wind (that's the "no-go zone"). So you zigzag. Tacking is turning the bow through the wind. Gybing is turning the stern through it. Tacking is gentler. Gybing can be... dramatic. Like when someone drops the bass unexpectedly.</p>
+                        <p class="text-sky-300 text-sm"><strong>Top tip:</strong> Always shout "Ready about!" before tacking and "Gybing!" before gybing. Communication saves heads -- literally. The boom doesn't care about your feelings.</p>
+                    </div>
+                    <div class="bg-sky-900/30 rounded-xl p-6 border border-sky-800/30">
+                        <h4 class="font-bold text-white mb-2">Your First Boat -- Dinghy vs Yacht</h4>
+                        <p class="text-sky-200 text-sm mb-3">Start in a dinghy. Seriously. I know the yacht looks sexier, but a dinghy teaches you everything -- wind, balance, trim, capsizing (yes, you WILL capsize, and that's proper good fun). A Topper or a Laser is perfect for learning. Once you've got dinghy skills, moving to a keelboat or yacht is natural progression.</p>
+                        <p class="text-sky-300 text-sm"><strong>Budget:</strong> A used Topper dinghy starts around 500 quid. An RYA Start Sailing course is about 200-300 quid for a weekend. Best money you'll ever spend.</p>
+                    </div>
+                </div>
+            </div>
+
+            <div id="learnBoats" class="hidden">
+                <h3 class="text-xl font-bold text-amber-400 mb-4">&#9875; Know Your Boat</h3>
+                <div class="space-y-4">
+                    <div class="bg-sky-900/30 rounded-xl p-6 border border-sky-800/30">
+                        <h4 class="font-bold text-white mb-2">Parts of a Boat -- The Essentials</h4>
+                        <div class="grid md:grid-cols-2 gap-3 text-sm text-sky-200">
+                            <div><strong class="text-white">Bow:</strong> The pointy front end. Where you're heading.</div>
+                            <div><strong class="text-white">Stern:</strong> The back end. Where you've been.</div>
+                            <div><strong class="text-white">Port:</strong> Left side (facing forward). Red light. "Port" and "left" both have four letters.</div>
+                            <div><strong class="text-white">Starboard:</strong> Right side. Green light at night.</div>
+                            <div><strong class="text-white">Helm:</strong> Where you steer from. Tiller on dinghies, wheel on yachts.</div>
+                            <div><strong class="text-white">Boom:</strong> Horizontal pole at the bottom of the mainsail. Named after the sound it makes hitting your head.</div>
+                        </div>
+                    </div>
+                    <div class="bg-sky-900/30 rounded-xl p-6 border border-sky-800/30">
+                        <h4 class="font-bold text-white mb-2">Types of Boats</h4>
+                        <div class="grid md:grid-cols-2 gap-3 text-sm text-sky-200">
+                            <div><strong class="text-white">Dinghy:</strong> Small, open, usually one or two crew. Capsizes easily (feature, not bug). Best for learning.</div>
+                            <div><strong class="text-white">Keelboat:</strong> Has a heavy keel so it won't capsize. Bigger, more stable, more comfortable.</div>
+                            <div><strong class="text-white">Yacht:</strong> Keelboat with a cabin. Sleep on it, cook on it, live on it. The dream.</div>
+                            <div><strong class="text-white">Catamaran:</strong> Two hulls. Fast, stable, loads of space. Like a floating apartment.</div>
+                        </div>
+                    </div>
+                    <div class="bg-sky-900/30 rounded-xl p-6 border border-sky-800/30">
+                        <h4 class="font-bold text-white mb-2">Maintenance -- Keep Her Happy</h4>
+                        <p class="text-sky-200 text-sm mb-3">A boat is like a DJ set-up -- neglect the maintenance and it'll let you down at the worst moment. Rinse everything with fresh water after saltwater use. Check your standing rigging yearly. Antifoul the hull. Service the engine.</p>
+                        <p class="text-sky-300 text-sm"><strong>Golden rule:</strong> The best time to fix something on a boat is before it breaks. The second best time is in the marina, not at sea.</p>
+                    </div>
+                </div>
+            </div>
+
+            <div id="learnSafety" class="hidden">
+                <h3 class="text-xl font-bold text-red-400 mb-4">&#129343; Safety &amp; Diving</h3>
+                <div class="bg-red-900/20 rounded-xl p-6 border border-red-800/30 mb-4">
+                    <p class="text-white font-bold mb-3">Dave's Number One Rule: The Sea Doesn't Care About Your Plans</p>
+                    <p class="text-sky-200 text-sm">I've been out in force 8 when the forecast said force 4. The sea is beautiful and she will absolutely kill you if you don't respect her. Same as the rave scene -- know your limits, look after your mates, and always have an exit plan.</p>
+                </div>
+                <div class="space-y-4">
+                    <div class="bg-sky-900/30 rounded-xl p-6 border border-sky-800/30">
+                        <h4 class="font-bold text-white mb-2">Safety Essentials</h4>
+                        <div class="text-sky-200 text-sm space-y-2">
+                            <p>-- <strong class="text-white">Lifejacket:</strong> Wear one. Every time. No exceptions. Auto-inflate 150N minimum for offshore.</p>
+                            <p>-- <strong class="text-white">VHF Radio:</strong> Channel 16 is distress. Get your Short Range Certificate.</p>
+                            <p>-- <strong class="text-white">Flares:</strong> Check expiry dates. Keep them dry. Know which colour means what.</p>
+                            <p>-- <strong class="text-white">Man Overboard:</strong> Shout it, point at them, throw the danbuoy. Never lose sight. Practice this.</p>
+                            <p>-- <strong class="text-white">Weather:</strong> Check the shipping forecast AND inshore waters forecast. If in doubt, don't go out.</p>
+                        </div>
+                    </div>
+                    <div class="bg-sky-900/30 rounded-xl p-6 border border-sky-800/30">
+                        <h4 class="font-bold text-white mb-2">Coastguard &amp; Emergency</h4>
+                        <div class="text-sky-200 text-sm space-y-2">
+                            <p>-- Dial <strong class="text-white">999</strong> or <strong class="text-white">112</strong> and ask for the Coastguard.</p>
+                            <p>-- VHF Channel 16: <strong class="text-white">"MAYDAY MAYDAY MAYDAY"</strong> for life-threatening emergencies.</p>
+                            <p>-- <strong class="text-white">Pan-Pan</strong> for urgent but not immediately life-threatening situations.</p>
+                            <p>-- Download <strong class="text-white">What3Words</strong> -- the Coastguard uses it to pinpoint your location.</p>
+                            <p>-- File a passage plan with someone ashore. Tell them where you're going and when you'll be back.</p>
+                        </div>
+                    </div>
+                    <div class="bg-sky-900/30 rounded-xl p-6 border border-sky-800/30">
+                        <h4 class="font-bold text-white mb-2">PADI Diving -- The Underwater Rave</h4>
+                        <div class="text-sky-200 text-sm space-y-2">
+                            <p>Diving is the closest thing to a proper rave I've found. Weightless, surrounded by colour and life, in your own little bubble.</p>
+                            <p>-- <strong class="text-white">Open Water Diver:</strong> Entry level. 4 days. Certified to 18 metres.</p>
+                            <p>-- <strong class="text-white">Advanced Open Water:</strong> 2 more days, 5 adventure dives. Gets you to 30 metres.</p>
+                            <p>-- <strong class="text-white">Rescue Diver:</strong> How to manage emergencies underwater. Changed how I think about safety.</p>
+                            <p>-- <strong class="text-white">Dive Master:</strong> Professional level. You can guide dives and assist instructors.</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <section id="pageQA" class="section-fade mb-12">
+            <h2 class="text-3xl font-black text-white mb-1">&#9875; No Daft Questions</h2>
+            <p class="font-hand text-xl text-amber-300 mb-6">"No shame in asking, mate. The shame is in NOT asking." -- Captain Dave</p>
+            <div class="bg-sky-900/20 rounded-2xl border border-sky-800/30 overflow-hidden">
+                <div class="qa-item p-5" onclick="toggleQA(this)">
+                    <div class="qa-question justify-between"><p class="font-bold text-white">What boat should I start with?</p><span class="text-sky-400 text-xl ml-2">+</span></div>
+                    <div class="qa-answer text-sky-200 text-sm pt-3">A dinghy. Every time. I know you're eyeing up that 36-footer in the marina, but trust me -- start small. A Topper, a Laser, or a Wayfarer if you want to take a mate along. Dinghies teach you everything: wind awareness, balance, sail trim, and how to capsize without panicking. You can pick up a decent used <a href="https://www.amazon.co.uk/s?k=topper+dinghy+sailing&tag=chrisptee-21" target="_blank" class="text-amber-400 hover:text-amber-300 underline">Topper</a> for 500-800 quid. Best investment in sailing you'll ever make.</div>
+                </div>
+                <div class="qa-item p-5" onclick="toggleQA(this)">
+                    <div class="qa-question justify-between"><p class="font-bold text-white">How do I learn to sail?</p><span class="text-sky-400 text-xl ml-2">+</span></div>
+                    <div class="qa-answer text-sky-200 text-sm pt-3">RYA courses are the gold standard in the UK. Start with the RYA Start Sailing (Level 1) -- it's a weekend course at any recognised centre. Costs about 200-300 quid. After that, Level 2, then Day Skipper theory, then practical. Or just find a local sailing club -- most run taster days for twenty quid. The <a href="https://www.amazon.co.uk/s?k=RYA+start+sailing+book&tag=chrisptee-21" target="_blank" class="text-amber-400 hover:text-amber-300 underline">RYA Start Sailing handbook</a> is a proper good companion.</div>
+                </div>
+                <div class="qa-item p-5" onclick="toggleQA(this)">
+                    <div class="qa-question justify-between"><p class="font-bold text-white">Is sailing expensive?</p><span class="text-sky-400 text-xl ml-2">+</span></div>
+                    <div class="qa-answer text-sky-200 text-sm pt-3">It can be, but it doesn't have to be. That's the gatekeeping myth, mate. A sailing club membership runs 200-500 quid a year and many include boat use. Crewing on someone else's yacht costs literally nothing -- check crew finder websites and just show up willing to learn. I know blokes who've sailed the Atlantic on boats that cost less than a second-hand car. It's about resourcefulness, not riches.</div>
+                </div>
+                <div class="qa-item p-5" onclick="toggleQA(this)">
+                    <div class="qa-question justify-between"><p class="font-bold text-white">What's the difference between a yacht and a dinghy?</p><span class="text-sky-400 text-xl ml-2">+</span></div>
+                    <div class="qa-answer text-sky-200 text-sm pt-3">Size and keel, basically. A dinghy is small (8-16 feet), open, light, and has a centreboard. It will capsize -- that's normal. A yacht has a fixed heavy keel, a cabin, and is generally 20 feet or longer. You sleep on a yacht. You get wet in a dinghy. Both are proper brilliant. Think of it like the difference between a warehouse rave and a festival -- different vibes, same love of music.</div>
+                </div>
+                <div class="qa-item p-5" onclick="toggleQA(this)">
+                    <div class="qa-question justify-between"><p class="font-bold text-white">What safety gear do I need?</p><span class="text-sky-400 text-xl ml-2">+</span></div>
+                    <div class="qa-answer text-sky-200 text-sm pt-3">Minimum: a proper <a href="https://www.amazon.co.uk/s?k=automatic+inflating+lifejacket+150n&tag=chrisptee-21" target="_blank" class="text-amber-400 hover:text-amber-300 underline">lifejacket</a> (not a buoyancy aid -- there's a difference), a whistle, and common sense. For anything beyond dinghy sailing: add flares, a VHF radio, a first aid kit, a knife, a torch, and a means of calling for help. Get your VHF Short Range Certificate -- it's a weekend course and could save your life.</div>
+                </div>
+                <div class="qa-item p-5" onclick="toggleQA(this)">
+                    <div class="qa-question justify-between"><p class="font-bold text-white">How do tides work?</p><span class="text-sky-400 text-xl ml-2">+</span></div>
+                    <div class="qa-answer text-sky-200 text-sm pt-3">The moon pulls the sea around. Twice a day the water goes up (flood) and twice it goes down (ebb). Spring tides happen around full and new moons -- bigger range. Neap tides happen at quarter moons -- smaller range. The Rule of Twelfths tells you how fast the water rises each hour. Always check a <a href="https://www.amazon.co.uk/s?k=reeds+nautical+almanac+2026&tag=chrisptee-21" target="_blank" class="text-amber-400 hover:text-amber-300 underline">Reeds Nautical Almanac</a> or a tidal atlas before you go anywhere.</div>
+                </div>
+                <div class="qa-item p-5" onclick="toggleQA(this)">
+                    <div class="qa-question justify-between"><p class="font-bold text-white">What's the best sailing area in the UK?</p><span class="text-sky-400 text-xl ml-2">+</span></div>
+                    <div class="qa-answer text-sky-200 text-sm pt-3">Depends what you're after, mate. The Solent is the UK's sailing capital -- sheltered, loads of marinas. The West Country has the Bristol Channel and gorgeous Cornish harbours. Scotland's west coast is arguably the most beautiful sailing in Europe. The Norfolk Broads are perfect for inland pottering. Honestly? Wherever's closest to you. The best sailing water is the one you're actually on.</div>
+                </div>
+                <div class="qa-item p-5" onclick="toggleQA(this)">
+                    <div class="qa-question justify-between"><p class="font-bold text-white">Can I live on a boat?</p><span class="text-sky-400 text-xl ml-2">+</span></div>
+                    <div class="qa-answer text-sky-200 text-sm pt-3">Yes! Loads of people do. It's called being a "liveaboard." You'll need proper heating, ventilation, and a holding tank. Marina fees for a residential berth are 300-600 quid a month -- cheaper than rent in most cities. The lifestyle is proper ace if you like small spaces and being close to nature. Downsides: post delivery is weird, and your non-boat friends will stop visiting in winter. But the sunsets from your "living room"? Unbeatable.</div>
+                </div>
+                <div class="qa-item p-5" onclick="toggleQA(this)">
+                    <div class="qa-question justify-between"><p class="font-bold text-white">Who is Captain Dave?</p><span class="text-sky-400 text-xl ml-2">+</span></div>
+                    <div class="qa-answer text-sky-200 text-sm pt-3">I'm a Bristol lad, born and bred. Spent the 90s on dance floors -- Lakota, Trinity, Ashton Court, Glastonbury. PLUR was my religion. Then the sea called. Became a fisherman, then a sailor, then a PADI Dive Master, and finally got my Captain's ticket. The sea became my new rave -- same freedom, same respect for nature, same community. Now I run this corner of the FeelFamous village. No gatekeeping, no pretension, just honest knowledge. We were all landlubbers once, mate.</div>
+                </div>
+            </div>
+        </section>
+
+        <section id="pageDave" class="section-fade mb-12">
+            <h2 class="text-3xl font-black text-white mb-1">&#9875; Ask Captain Dave</h2>
+            <p class="text-sky-400 mb-6">Chat with the Captain directly. Sailing, boats, diving, tides, gear -- anything from the water. 24/7.</p>
+            <div class="chat-container">
+                <div class="bg-gradient-to-r from-[#0c3547] to-[#0c4a6e] px-5 py-4 flex items-center justify-between">
+                    <div class="flex items-center gap-3">
+                        <span class="text-3xl">&#9875;</span>
+                        <div>
+                            <p class="font-bold text-white">Captain Dave the Rave</p>
+                            <p class="text-sky-300 text-xs">Bristol Raver - Captain - Dive Master - Online</p>
+                        </div>
+                    </div>
+                    <button onclick="clearChat()" class="text-sky-300 hover:text-white text-sm transition" aria-label="Clear chat history">Clear</button>
+                </div>
+                <div id="chatMessages" class="chat-messages" role="log" aria-live="polite" aria-label="Chat with Captain Dave"></div>
+                <div class="border-t border-sky-900/50 p-3">
+                    <div class="flex gap-2">
+                        <input type="text" id="userInput" placeholder="Ask the Captain anything..." class="flex-1 bg-[#0c3547] border border-sky-800 rounded-lg px-4 py-3 text-white placeholder-sky-600 focus:border-sky-400 focus:outline-none" aria-label="Your message to Captain Dave" onkeydown="if(event.key==='Enter')sendMessage()">
+                        <button onclick="sendMessage()" id="sendBtn" class="bg-sky-600 hover:bg-sky-700 text-white font-bold px-5 rounded-lg transition min-w-[48px]" aria-label="Send message"><span id="sendText">&#9973;</span></button>
+                    </div>
+                </div>
+            </div>
+            <p class="text-sky-700 text-xs text-center mt-3">Safety always matters. Captain Dave will always encourage proper qualifications and preparation.</p>
+        </section>
+
+        <section id="pageGear" class="section-fade mb-12">
+            <h2 class="text-3xl font-black text-white mb-1">&#129517; Captain Dave's Locker</h2>
+            <p class="text-sky-400 mb-6">Honest recommendations. Gear I've used, books I've read, kit that works. No sponsored rubbish.</p>
+            <div class="grid md:grid-cols-2 gap-4 mb-8">
+                <div class="bg-sky-900/20 rounded-xl p-6 border border-sky-800/30">
+                    <h3 class="font-bold text-amber-400 mb-3">&#9973; Starter Kit</h3>
+                    <div class="space-y-2 text-sm">
+                        <a href="https://www.amazon.co.uk/s?k=sailing+gloves+dinghy&tag=chrisptee-21" target="_blank" class="block text-sky-200 hover:text-white transition">-> Sailing Gloves</a>
+                        <a href="https://www.amazon.co.uk/s?k=sailing+waterproof+jacket&tag=chrisptee-21" target="_blank" class="block text-sky-200 hover:text-white transition">-> Waterproof Jacket</a>
+                        <a href="https://www.amazon.co.uk/s?k=automatic+inflating+lifejacket+150n&tag=chrisptee-21" target="_blank" class="block text-sky-200 hover:text-white transition">-> Auto-Inflate Lifejacket</a>
+                        <a href="https://www.amazon.co.uk/s?k=sailing+deck+shoes&tag=chrisptee-21" target="_blank" class="block text-sky-200 hover:text-white transition">-> Sailing Deck Shoes</a>
+                    </div>
+                </div>
+                <div class="bg-sky-900/20 rounded-xl p-6 border border-sky-800/30">
+                    <h3 class="font-bold text-amber-400 mb-3">&#128214; Essential Reading</h3>
+                    <div class="space-y-2 text-sm">
+                        <a href="https://www.amazon.co.uk/s?k=RYA+start+sailing+book&tag=chrisptee-21" target="_blank" class="block text-sky-200 hover:text-white transition">-> RYA Start Sailing Handbook</a>
+                        <a href="https://www.amazon.co.uk/s?k=day+skipper+theory+book&tag=chrisptee-21" target="_blank" class="block text-sky-200 hover:text-white transition">-> Day Skipper Theory Guide</a>
+                        <a href="https://www.amazon.co.uk/s?k=reeds+nautical+almanac+2026&tag=chrisptee-21" target="_blank" class="block text-sky-200 hover:text-white transition">-> Reeds Nautical Almanac 2026</a>
+                        <a href="https://www.amazon.co.uk/s?k=RYA+navigation+handbook&tag=chrisptee-21" target="_blank" class="block text-sky-200 hover:text-white transition">-> RYA Navigation Handbook</a>
+                    </div>
+                </div>
+                <div class="bg-sky-900/20 rounded-xl p-6 border border-sky-800/30">
+                    <h3 class="font-bold text-amber-400 mb-3">&#129343; Dive Gear</h3>
+                    <div class="space-y-2 text-sm">
+                        <a href="https://www.amazon.co.uk/s?k=snorkel+mask+set+adult&tag=chrisptee-21" target="_blank" class="block text-sky-200 hover:text-white transition">-> Mask &amp; Snorkel Set</a>
+                        <a href="https://www.amazon.co.uk/s?k=scuba+diving+fins&tag=chrisptee-21" target="_blank" class="block text-sky-200 hover:text-white transition">-> Diving Fins</a>
+                        <a href="https://www.amazon.co.uk/s?k=dive+computer+wrist&tag=chrisptee-21" target="_blank" class="block text-sky-200 hover:text-white transition">-> Dive Computer</a>
+                        <a href="https://www.amazon.co.uk/s?k=wetsuit+5mm+diving&tag=chrisptee-21" target="_blank" class="block text-sky-200 hover:text-white transition">-> 5mm Wetsuit</a>
+                    </div>
+                </div>
+                <div class="bg-sky-900/20 rounded-xl p-6 border border-sky-800/30">
+                    <h3 class="font-bold text-amber-400 mb-3">&#128241; Essential Apps</h3>
+                    <div class="space-y-2 text-sm text-sky-200">
+                        <p>-> <strong>Navionics</strong> -- chart plotter, depths, tides, marina info</p>
+                        <p>-> <strong>Windy</strong> -- wind, weather, and wave forecasting</p>
+                        <p>-> <strong>PredictWind</strong> -- offshore weather routing and forecasts</p>
+                        <p>-> <strong>What3Words</strong> -- Coastguard uses this for rescue location</p>
+                        <p>-> <strong>Magic Seaweed</strong> -- swell, tides, and sea conditions</p>
+                    </div>
+                </div>
+            </div>
+
+            <div class="bg-sky-900/20 rounded-2xl border border-sky-800/30 overflow-hidden mb-8">
+                <div class="p-5 cursor-pointer" onclick="toggleQA(this.parentElement)">
+                    <div class="qa-question justify-between">
+                        <p class="font-bold text-white">&#9875; The Marina Code -- Community Rules</p>
+                        <span class="text-sky-400 text-xl ml-2">+</span>
+                    </div>
+                    <div class="qa-answer text-sky-200 text-sm pt-3">
+                        <div class="space-y-2">
+                            <p>1. <strong>Respect the sea.</strong> She's beautiful and she will absolutely end you if you don't pay attention.</p>
+                            <p>2. <strong>Respect the crew.</strong> Everyone on board matters. Listen, communicate, look out for each other.</p>
+                            <p>3. <strong>No gatekeeping.</strong> Sailing isn't just for posh people with trust funds. If you want to sail, you belong here.</p>
+                            <p>4. <strong>Leave it better than you found it.</strong> The sea, the marina, the boat, the community.</p>
+                            <p>5. <strong>Share knowledge freely.</strong> What you know could save someone's life -- or just make their day better.</p>
+                            <p>6. <strong>Welcome the weird.</strong> Neurodivergent, odd hours, strange questions, ravers-turned-sailors -- all welcome. PLUR on the water, always.</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="bg-gradient-to-br from-purple-900/30 to-sky-900/20 rounded-2xl p-6 border border-purple-800/30 mb-8">
+                <h3 class="text-xl font-bold text-purple-300 mb-3">&#129504; Got a Noisy Brain?</h3>
+                <p class="text-sky-200 text-sm mb-4">ADHD? Autistic? Both? Welcome home, mate. The founder of the -Oid villages is AuDHD himself. Sailing is one of the best things for a noisy brain -- the sea is the ultimate sensory reset. The wind, the water, the rhythm of the waves. It's like the best ambient set you've ever heard, but it never ends.</p>
+                <div class="text-sky-300 text-sm space-y-1">
+                    <p>-- Hyperfocus on knot-tying? That's a proper superpower here.</p>
+                    <p>-- Need constant stimulation? Sailing is non-stop micro-decisions. Your brain will love it.</p>
+                    <p>-- Overwhelmed by crowds? Solo sailing. Just you, the boat, and the horizon.</p>
+                    <p>-- Autistic joy in weather patterns? The shipping forecast is your new special interest.</p>
+                    <p>-- Need routine? Tides are the most reliable clock on earth.</p>
+                </div>
+            </div>
+
+            <div class="bg-gradient-to-br from-amber-900/20 to-sky-900/20 rounded-2xl p-6 border border-amber-800/30">
+                <h3 class="text-xl font-bold text-amber-400 mb-3">&#9973; Support the Village</h3>
+                <p class="text-sky-200 text-sm mb-4">Sail-Oid is free forever. If it helped you, support the marina on Patreon — from £3/month. Every penny keeps the lights on and the tide coming in.</p>
+                <div class="flex flex-wrap gap-3">
+                    <a href="https://www.patreon.com/chrisptee" target="_blank" class="bg-amber-500 hover:bg-amber-600 text-black px-5 py-3 rounded-xl font-bold transition text-sm">&#9973; Support on Patreon</a>
+                </div>
+            </div>
+        </section>
+
+        <div id="leaderboardView" class="hidden">
+            <div class="bg-sky-900/20 rounded-2xl border border-sky-800/30 p-6">
+                <h2 class="text-2xl font-bold text-white mb-6 text-center">Kudos Leaderboard</h2>
+                <div id="leaderboardList" class="space-y-3"><p class="text-center text-sky-600">Loading...</p></div>
+                <button onclick="switchView('home')" class="w-full mt-6 bg-sky-600 hover:bg-sky-700 text-white font-bold py-3 rounded-xl transition">Back to Home</button>
+            </div>
+        </div>
+
+        <div id="qrView" class="hidden">
+            <div class="bg-sky-900/20 rounded-2xl border border-sky-800/30 p-6 text-center">
+                <h2 class="text-2xl font-bold text-white mb-4">Your Referral QR Code</h2>
+                <img id="qrImage" src="" alt="QR Code" class="w-64 h-64 mx-auto mb-4 rounded-xl shadow-lg">
+                <p class="text-sky-300 mb-2">Share this to earn <strong>50 kudos</strong> per signup!</p>
+                <button onclick="downloadQR()" class="bg-sky-600 hover:bg-sky-700 text-white font-bold py-3 px-6 rounded-xl transition mb-3">Download QR Code</button>
+                <button onclick="switchView('home')" class="w-full bg-sky-900/30 hover:bg-sky-900/50 text-white font-bold py-3 rounded-xl transition">Back to Home</button>
+            </div>
+        </div>
+        <!-- MEET SECTION -->
+        <section id="pageMeet" class="section-fade mb-12 px-4">
+            <div style="background: var(--deep); border: 1px solid rgba(14,165,233,0.2);" class="rounded-2xl p-6 max-w-2xl mx-auto">
+                <div class="text-center mb-6">
+                    <p class="text-3xl mb-2">📍</p>
+                    <h2 class="text-2xl font-bold text-white">Meeting Point Generator</h2>
+                    <p class="text-sky-300 text-sm mt-2">Share your exact spot in three words. Marina, show, car park — never get lost again.</p>
+                    <p class="text-sky-600 text-xs mt-1">Powered by <a href="https://what3words.com" target="_blank" rel="noopener" class="text-sky-400 hover:text-sky-300">what3words</a> — every 3×3m square on Earth has a unique 3-word address</p>
+                </div>
+                <div class="grid grid-cols-4 gap-2 mb-5">
+                    <button class="usecase-btn active" data-icon="⛵" data-title="My Berth" data-label="Berth" onclick="selectUseCase(this)">
+                        <span class="text-xl block mb-1">⛵</span>
+                        <span class="text-xs font-semibold">My Berth</span>
+                    </button>
+                    <button class="usecase-btn" data-icon="⚓" data-title="The Chandlery" data-label="Chandlery" onclick="selectUseCase(this)">
+                        <span class="text-xl block mb-1">⚓</span>
+                        <span class="text-xs font-semibold">The Chandlery</span>
+                    </button>
+                    <button class="usecase-btn" data-icon="🚗" data-title="My Trailer" data-label="Trailer" onclick="selectUseCase(this)">
+                        <span class="text-xl block mb-1">🚗</span>
+                        <span class="text-xs font-semibold">My Trailer</span>
+                    </button>
+                    <button class="usecase-btn" data-icon="⚓" data-title="This Show" data-label="Boat Show" onclick="selectUseCase(this)">
+                        <span class="text-xl block mb-1">🎪</span>
+                        <span class="text-xs font-semibold">This Show</span>
+                    </button>
+                </div>
+                <div style="background: var(--abyss); border: 1px solid rgba(14,165,233,0.15);" class="rounded-xl p-4 mb-4">
+                    <button onclick="findMySpot()" id="geoBtn" class="w-full bg-sky-600 hover:bg-sky-700 text-white font-bold py-3 rounded-xl transition mb-3" style="min-height:48px;">📍 Find My Exact Spot</button>
+                    <p id="geoStatus" class="hidden text-center text-sky-300 text-sm mb-2"></p>
+                    <p class="text-center text-sky-700 text-xs mb-2">— or type a what3words address —</p>
+                    <div class="relative">
+                        <input type="text" id="w3wInput" placeholder="three.word.address"
+                            autocomplete="off" spellcheck="false"
+                            style="background: var(--deep); color: white; border: 1px solid rgba(14,165,233,0.3);"
+                            class="w-full px-4 py-3 rounded-xl text-center focus:outline-none min-h-[48px] text-lg tracking-widest"
+                            oninput="handleW3WInput(this.value)" onkeydown="handleW3WKeydown(event)">
+                        <div id="w3wSuggestions" class="hidden absolute z-50 w-full mt-1 rounded-xl overflow-hidden shadow-xl text-left" style="background: var(--deep); border: 1px solid rgba(14,165,233,0.3);"></div>
+                    </div>
+                    <div class="grid grid-cols-2 gap-2 mt-3">
+                        <input type="text" id="meetEventName" placeholder="Event name (optional)"
+                            style="background: var(--deep); color: #e2e8f0; border: 1px solid rgba(14,165,233,0.2);"
+                            class="px-3 py-2 rounded-lg text-sm min-h-[44px] focus:outline-none">
+                        <input type="text" id="meetLocationLabel" placeholder="e.g. Pontoon B, Berth 12"
+                            style="background: var(--deep); color: #e2e8f0; border: 1px solid rgba(14,165,233,0.2);"
+                            class="px-3 py-2 rounded-lg text-sm min-h-[44px] focus:outline-none">
+                    </div>
+                    <button onclick="generateMeetCard()" class="w-full bg-amber-500 hover:bg-amber-400 text-black font-bold py-3 rounded-xl transition mt-3" style="min-height:48px;">Generate Card ✨</button>
+                </div>
+                <div id="meetCardPreview" class="hidden">
+                    <div style="background: var(--abyss); border: 1px solid rgba(14,165,233,0.3);" class="rounded-xl p-5 text-center">
+                        <div class="text-3xl mb-1" id="cardIcon">⛵</div>
+                        <p class="text-xs font-bold uppercase tracking-widest mb-1 text-sky-400" id="cardUseCaseTitle">My Berth</p>
+                        <p class="text-4xl text-amber-300 font-bold mb-1 leading-tight" id="cardW3WDisplay">///word.word.word</p>
+                        <p class="text-sky-400/60 text-sm mb-3" id="cardLocationLabel"></p>
+                        <div id="meetQR" class="mx-auto mb-3" style="width:140px;height:140px;background:#fff;border-radius:10px;padding:8px;display:flex;align-items:center;justify-content:center;"></div>
+                        <p class="text-sky-400/40 text-sm mb-3" id="cardEventName"></p>
+                        <div class="flex gap-2 justify-center flex-wrap">
+                            <button onclick="shareSpot()" class="bg-sky-600 hover:bg-sky-500 text-white font-bold py-2 px-4 rounded-lg transition text-sm min-h-[44px]">📤 Share Spot</button>
+                            <button onclick="copyW3WLink()" class="bg-sky-900 hover:bg-sky-800 text-sky-300 font-bold py-2 px-4 rounded-lg transition text-sm min-h-[44px]">📋 Copy Link</button>
+                            <button onclick="resetMeetCard()" class="text-sky-500/50 hover:text-sky-400 transition text-sm px-3 py-2 min-h-[44px]">New</button>
+                        </div>
+                    </div>
+                    <p class="text-center text-sky-700 text-xs mt-3"><a href="https://what3words.com" target="_blank" rel="noopener" class="text-sky-500 hover:text-sky-400">what3words.com</a> — scan QR to navigate on any device</p>
+                </div>
+            </div>
+        </section>
+
+    </main>
+
+    <div id="quickNav" class="hidden fixed bottom-4 right-4 flex flex-col gap-2 z-30">
+        <button onclick="switchView('leaderboard')" class="bg-[#0c3547] hover:bg-sky-900 text-white font-bold py-3 px-4 rounded-full shadow-lg transition border border-sky-800/30">&#127942;</button>
+        <button onclick="switchView('qr')" class="bg-[#0c3547] hover:bg-sky-900 text-white font-bold py-3 px-4 rounded-full shadow-lg transition border border-sky-800/30">&#128241;</button>
+    </div>
+
+    <section id="pageVillage" class="bg-[#071e33] py-12 border-t border-sky-900/30">
+        <div class="max-w-4xl mx-auto px-4">
+            <h2 class="text-3xl font-black text-white mb-2 text-center">&#127960; The -Oid Villages</h2>
+            <p class="text-sky-400 text-center mb-8">Same AI brain, different expert heads. Each village has its own community of enthusiasts.</p>
+            <div class="grid grid-cols-4 md:grid-cols-5 gap-3 mb-8">
+                <a href="https://magic-oid.co.uk" class="bg-sky-900/30 hover:bg-purple-900/30 border border-sky-800/30 rounded-xl p-3 text-center transition"><span class="text-2xl">&#127913;</span><span class="block text-xs font-semibold text-purple-400 mt-1">Magic-Oid</span></a>
+                <a href="https://radi-oid.co.uk" class="bg-sky-900/30 hover:bg-orange-900/30 border border-sky-800/30 rounded-xl p-3 text-center transition"><span class="text-2xl">&#128251;</span><span class="block text-xs font-semibold text-orange-400 mt-1">Radi-Oid</span></a>
+                <div class="bg-sky-800/40 border-2 border-sky-400/50 rounded-xl p-3 text-center"><span class="text-2xl">&#9973;</span><span class="block text-xs font-bold text-sky-300 mt-1">YOU'RE HERE!</span></div>
+                <a href="https://guit-oid.co.uk" class="bg-sky-900/30 hover:bg-amber-900/30 border border-sky-800/30 rounded-xl p-3 text-center transition"><span class="text-2xl">&#127928;</span><span class="block text-xs font-semibold text-amber-400 mt-1">Guit-Oid</span></a>
+                <a href="https://vinyl-oid.co.uk" class="bg-sky-900/30 hover:bg-purple-900/30 border border-sky-800/30 rounded-xl p-3 text-center transition"><span class="text-2xl">&#128191;</span><span class="block text-xs font-semibold text-purple-400 mt-1">Vinyl-Oid</span></a>
+                <a href="https://coin-oid.co.uk" class="bg-sky-900/30 hover:bg-yellow-900/30 border border-sky-800/30 rounded-xl p-3 text-center transition"><span class="text-2xl">&#129689;</span><span class="block text-xs font-semibold text-yellow-400 mt-1">Coin-Oid</span></a>
+                <a href="https://watch-oid.co.uk" class="bg-sky-900/30 hover:bg-cyan-900/30 border border-sky-800/30 rounded-xl p-3 text-center transition"><span class="text-2xl">&#8986;</span><span class="block text-xs font-semibold text-cyan-400 mt-1">Watch-Oid</span></a>
+                <a href="https://camera-oid.co.uk" class="bg-sky-900/30 hover:bg-orange-900/30 border border-sky-800/30 rounded-xl p-3 text-center transition"><span class="text-2xl">&#128247;</span><span class="block text-xs font-semibold text-orange-400 mt-1">Camera-Oid</span></a>
+                <a href="https://stamp-oid.co.uk" class="bg-sky-900/30 hover:bg-rose-900/30 border border-sky-800/30 rounded-xl p-3 text-center transition"><span class="text-2xl">&#128238;</span><span class="block text-xs font-semibold text-rose-400 mt-1">Stamp-Oid</span></a>
+                <a href="https://cannabin-oid.co.uk" class="bg-sky-900/30 hover:bg-green-900/30 border border-sky-800/30 rounded-xl p-3 text-center transition"><span class="text-2xl">&#127807;</span><span class="block text-xs font-semibold text-green-400 mt-1">Cannabin-Oid</span></a>
+                <a href="https://fish-oid.co.uk" class="bg-sky-900/30 hover:bg-cyan-900/30 border border-sky-800/30 rounded-xl p-3 text-center transition"><span class="text-2xl">&#128031;</span><span class="block text-xs font-semibold text-cyan-400 mt-1">Fish-Oid</span></a>
+                <a href="https://designer-oid.co.uk" class="bg-sky-900/30 hover:bg-rose-900/30 border border-sky-800/30 rounded-xl p-3 text-center transition"><span class="text-2xl">&#128087;</span><span class="block text-xs font-semibold text-rose-400 mt-1">Designer-Oid</span></a>
+                <a href="https://miniature-oid.co.uk" class="bg-sky-900/30 hover:bg-indigo-900/30 border border-sky-800/30 rounded-xl p-3 text-center transition"><span class="text-2xl">&#128269;</span><span class="block text-xs font-semibold text-indigo-400 mt-1">Miniature-Oid</span></a>
+                <a href="https://spicylister.com" class="bg-sky-900/30 hover:bg-red-900/30 border border-sky-800/30 rounded-xl p-3 text-center transition"><span class="text-2xl">&#127798;</span><span class="block text-xs font-semibold text-red-400 mt-1">SpicyLister</span></a>
+            </div>
+            <h3 class="text-lg font-bold text-center text-sky-400 mb-4">The Family</h3>
+            <div class="grid grid-cols-3 md:grid-cols-6 gap-2 mb-8">
+                <a href="https://comedymagic.co.uk" class="bg-sky-900/20 border border-sky-800/20 rounded-lg p-2 text-center hover:bg-sky-900/40 transition"><span class="text-xl">&#127917;</span><span class="block text-xs text-sky-500 mt-1">Comedy Magic</span></a>
+                <a href="https://docstrange.co.uk" class="bg-sky-900/20 border border-sky-800/20 rounded-lg p-2 text-center hover:bg-sky-900/40 transition"><span class="text-xl">&#129504;</span><span class="block text-xs text-sky-500 mt-1">Doc Strange</span></a>
+                <a href="https://chrisptee.co.uk" class="bg-sky-900/20 border border-sky-800/20 rounded-lg p-2 text-center hover:bg-sky-900/40 transition"><span class="text-xl">&#127913;</span><span class="block text-xs text-sky-500 mt-1">Chris P Tee</span></a>
+                <a href="https://feelfamous.com" class="bg-sky-900/20 border border-sky-800/20 rounded-lg p-2 text-center hover:bg-sky-900/40 transition"><span class="text-xl">&#11088;</span><span class="block text-xs text-sky-500 mt-1">FeelFamous</span></a>
+                <a href="https://strangemole.co.uk" class="bg-sky-900/20 border border-sky-800/20 rounded-lg p-2 text-center hover:bg-sky-900/40 transition"><span class="text-xl">&#128371;</span><span class="block text-xs text-sky-500 mt-1">Strange Mole</span></a>
+                <a href="https://jackmingus.co.uk" class="bg-sky-900/20 border border-sky-800/20 rounded-lg p-2 text-center hover:bg-sky-900/40 transition"><span class="text-xl">&#127930;</span><span class="block text-xs text-sky-500 mt-1">Jack Mingus</span></a>
+            </div>
+            <div class="bg-gradient-to-br from-amber-900/20 to-sky-900/20 rounded-2xl p-8 border border-amber-800/30 mb-8 text-center">
+                <h3 class="text-2xl font-black text-white mb-2">&#127959; Create Your Hamlet</h3>
+                <p class="text-sky-200 text-sm mb-4 max-w-xl mx-auto">Want your own page inside the -Oid village? Your own shop, your own community corner, your own little berth in the marina. Self-service hamlets are coming -- your expertise, your page, your rules.</p>
+                <a href="https://sail-oid.co.uk/hamlet/signup" target="_blank" class="inline-block bg-amber-500 hover:bg-amber-600 text-black px-6 py-3 rounded-xl font-bold transition">Register Interest</a>
+            </div>
+            <div class="bg-sky-900/20 rounded-2xl border border-sky-800/30 p-8 mb-8">
+                <h3 class="text-2xl font-black text-white mb-4 text-center">Join the Village</h3>
+                <div class="grid md:grid-cols-3 gap-4 mb-6">
+                    <div class="bg-sky-900/30 rounded-xl p-6 text-center border border-sky-800/30">
+                        <p class="text-3xl mb-2">&#9973;</p><p class="font-bold text-white text-lg">Villager</p><p class="text-amber-400 font-bold text-xl mb-2">&#163;3/month</p>
+                        <p class="text-sky-300 text-sm">You're in. Support the marina, keep the tide coming in. Cancel any time.</p>
+                    </div>
+                    <div class="bg-gradient-to-b from-amber-900/30 to-sky-900/30 rounded-xl p-6 text-center border-2 border-amber-500/50">
+                        <p class="text-3xl mb-2">&#11088;</p><p class="font-bold text-white text-lg">Elder</p><p class="text-amber-400 font-bold text-xl mb-2">&#163;7/month</p>
+                        <p class="text-sky-300 text-sm">Proper crew. You believe in what's being built. Named in the village roll.</p>
+                    </div>
+                    <div class="bg-gradient-to-b from-purple-900/30 to-sky-900/30 rounded-xl p-6 text-center border-2 border-purple-500/50">
+                        <p class="text-3xl mb-2">&#128081;</p><p class="font-bold text-white text-lg">Founder</p><p class="text-amber-400 font-bold text-xl mb-2">&#163;15/month</p>
+                        <p class="text-sky-300 text-sm">You're building this with us. Direct line to Chris. Early access. Forever grateful.</p>
+                    </div>
+                </div>
+                <div class="text-center"><a href="https://www.patreon.com/chrisptee" target="_blank" class="inline-block bg-amber-500 hover:bg-amber-600 text-black px-8 py-3 rounded-xl font-bold transition">&#9973; Join the Marina on Patreon</a></div>
+            </div>
+            <div class="text-center mb-4">
+                <h3 class="text-lg font-bold text-white mb-3">Get in Touch</h3>
+                <div class="flex flex-wrap gap-3 justify-center">
+                    <a href="https://wa.me/447976884254" class="bg-green-600 hover:bg-green-700 text-white px-5 py-3 rounded-xl font-bold transition text-sm">WhatsApp Chris</a>
+                    <a href="mailto:chris@chrisptee.co.uk" class="bg-sky-600 hover:bg-sky-700 text-white px-5 py-3 rounded-xl font-bold transition text-sm">Email Chris</a>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <footer class="bg-[#051525] py-10 border-t border-sky-900/20">
+        <div class="max-w-4xl mx-auto text-center px-4">
+            <h3 class="text-lg font-bold text-sky-400 mb-3">Standing on the Shoulders of Giants</h3>
+            <p class="text-sm text-sky-600 mb-4">Joshua Slocum - Ellen MacArthur - Robin Knox-Johnston - Francis Chichester - Dame Sarah Storey - Jacques Cousteau - Ranulph Fiennes - Pete Goss</p>
+            <p class="font-hand text-xl text-amber-400 mb-4">"The sea, once it casts its spell, holds one in its net of wonder forever." -- Jacques Cousteau</p>
+            <div class="flex flex-wrap gap-3 justify-center mb-4">
+                <a href="https://www.patreon.com/chrisptee" class="text-amber-400 hover:text-amber-300 text-sm transition">Patreon</a>
+                <a href="https://wa.me/447976884254" class="text-green-400 hover:text-green-300 text-sm transition">WhatsApp</a>
+                <a href="https://feelfamous.co.uk" class="text-sky-400 hover:text-sky-300 text-sm transition">FeelFamous</a>
+                <a href="/story.html" class="text-amber-300 hover:text-amber-200 text-sm transition">Our Story</a>
+            </div>
+            <p class="text-xs text-sky-700 mb-1">Built by <a href="https://chrisptee.co.uk" class="text-sky-500 hover:text-sky-400">Chris P Tee</a> - Part of <a href="https://feelfamous.com" class="text-sky-500 hover:text-sky-400">FeelFamous</a> - Captain Dave's Marina Village</p>
+            <p class="text-xs text-sky-800 mb-2">World Domination Through Kindness. One ember at a time.</p>
+            <p class="text-xs text-sky-900">Compass mapped. Forge built. Ember sparked. &#9973;</p>
+        </div>
+    </footer>
+
+    <canvas id="resultCanvas" class="hidden"></canvas>
+
+    <script>
+        const CONFIG = {
+            oidName: 'Sail-Oid',
+            oidSlug: 'sailing',
+            primaryColor: '#0e6080',
+            loadingIcon: '\u2693',
+            supabaseUrl: 'https://pdnjeynugptnavkdbmxh.supabase.co',
+            supabaseKey: 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InBkbmpleW51Z3B0bmF2a2RibXhoIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjkwMTEzMDAsImV4cCI6MjA4NDU4NzMwMH0.GawisR01EykMtdauBMxenmHF2NXDMzDOJl8WgzkwFQo',
+            adminEmails: ['chris@chrisptee.co.uk', 'chris@chrisptee.com', 'glowgadgets@gmail.com']
+        };
+
+        const { createClient } = supabase;
+        const supabaseClient = createClient(CONFIG.supabaseUrl, CONFIG.supabaseKey);
+
+        let currentUser = null;
+        let currentResult = null;
+        let userQRCode = null;
+
+        async function compressImage(file, maxSize = 800, quality = 0.7) {
+            return new Promise((resolve, reject) => {
+                const reader = new FileReader();
+                reader.onload = (e) => {
+                    const img = new Image();
+                    img.onload = () => {
+                        const canvas = document.createElement('canvas');
+                        let { width, height } = img;
+                        if (width > maxSize || height > maxSize) {
+                            if (width > height) { height = (height / width) * maxSize; width = maxSize; }
+                            else { width = (width / height) * maxSize; height = maxSize; }
+                        }
+                        canvas.width = width; canvas.height = height;
+                        canvas.getContext('2d').drawImage(img, 0, 0, width, height);
+                        const dataUrl = canvas.toDataURL('image/jpeg', quality);
+                        resolve({ base64: dataUrl.split(',')[1], dataUrl });
+                    };
+                    img.onerror = reject;
+                    img.src = e.target.result;
+                };
+                reader.onerror = reject;
+                reader.readAsDataURL(file);
+            });
+        }
+
+        function parseAmazonSearch(description) {
+            const match = description.match(/AMAZON_SEARCH:\s*(.+?)(\n|$)/i);
+            if (match) {
+                const searchTerm = match[1].trim();
+                const cleanDesc = description.replace(/AMAZON_SEARCH:\s*.+?(\n|$)/i, '').trim();
+                return { searchTerm, cleanDesc };
+            }
+            return { searchTerm: null, cleanDesc: description };
+        }
+
+        const patientMessages = [
+            "Checking the chart plotter...",
+            "Scanning the marina...",
+            "Consulting the harbour master...",
+            "Checking the shipping forecast...",
+            "Reading the Beaufort scale...",
+            "Dave's having a look...",
+            "Checking port and starboard...",
+            "Examining the hull...",
+            "Reading the tide tables...",
+            "Inspecting the rigging...",
+            "Almost docked...",
+            "The AI is being thorough, not fast..."
+        ];
+        let messageIndex = 0;
+        let loadingStartTime = 0;
+        let loadingTimerInterval = null;
+
+        function updateLoadingMessage(customMsg) {
+            const msgEl = document.getElementById('loadingMessage');
+            if (customMsg) { msgEl.textContent = customMsg; }
+            else { msgEl.textContent = patientMessages[messageIndex % patientMessages.length]; messageIndex++; }
+        }
+
+        function startLoadingTimer() {
+            loadingStartTime = Date.now();
+            messageIndex = 0;
+            const timerEl = document.getElementById('loadingTimer');
+            loadingTimerInterval = setInterval(() => {
+                const elapsed = Math.floor((Date.now() - loadingStartTime) / 1000);
+                timerEl.textContent = elapsed + 's';
+                if (elapsed > 0 && elapsed % 4 === 0) updateLoadingMessage();
+            }, 1000);
+        }
+
+        function stopLoadingTimer() {
+            if (loadingTimerInterval) { clearInterval(loadingTimerInterval); loadingTimerInterval = null; }
+        }
+
+        async function fetchWithRetry(url, options, maxRetries = 4) {
+            let lastError;
+            for (let attempt = 0; attempt <= maxRetries; attempt++) {
+                try {
+                    const response = await fetch(url, options);
+                    const data = await response.json();
+                    if (data.error && (response.status === 429 || response.status === 503)) {
+                        if (attempt < maxRetries) {
+                            const waitTime = Math.pow(2, attempt) * 3000;
+                            updateLoadingMessage('Heavy seas... waiting ' + (waitTime/1000) + 's then trying again');
+                            await new Promise(resolve => setTimeout(resolve, waitTime));
+                            continue;
+                        }
+                    }
+                    return data;
+                } catch (error) {
+                    lastError = error;
+                    if (error.name === 'AbortError') throw error;
+                    if (attempt < maxRetries) {
+                        const waitTime = Math.pow(2, attempt) * 3000;
+                        updateLoadingMessage('Signal lost... trying again in ' + (waitTime/1000) + 's');
+                        await new Promise(resolve => setTimeout(resolve, waitTime));
+                    }
+                }
+            }
+            throw lastError;
+        }
+
+        function checkAgeVerification() {
+            if (!localStorage.getItem('ageVerified')) {
+                document.getElementById('ageModal').classList.remove('hidden');
+            }
+        }
+
+        function confirmAge(type) {
+            localStorage.setItem('ageVerified', type);
+            localStorage.setItem('ageVerifiedDate', new Date().toISOString());
+            document.getElementById('ageModal').classList.add('hidden');
+            if (type === 'under18') {
+                alert('Please ask your parent or guardian to sign up with you. They can create an account and add you as a supervised user.');
+            }
+        }
+
+        async function checkUser() {
+            const { data: { session } } = await supabaseClient.auth.getSession();
+            if (session) { currentUser = session.user; await loadUserData(); showUserStatus(); }
+        }
+
+        async function loadUserData() {
+            if (!currentUser) return;
+            try {
+                let { data: userData, error } = await supabaseClient.from('users').select('*').eq('id', currentUser.id).single();
+                if (error || !userData) {
+                    const { data: newUser } = await supabaseClient.from('users').insert([{ id: currentUser.id, email: currentUser.email, username: currentUser.email.split('@')[0], kudos: 0, oid_memberships: [CONFIG.oidSlug] }]).select().single();
+                    userData = newUser;
+                } else {
+                    if (!userData.oid_memberships.includes(CONFIG.oidSlug)) {
+                        await supabaseClient.from('users').update({ oid_memberships: [...userData.oid_memberships, CONFIG.oidSlug] }).eq('id', currentUser.id);
+                    }
+                }
+                const oidCount = userData.oid_memberships.length;
+                let badge = 'Villager';
+                if (oidCount >= 5) badge = 'Pollinator';
+                else if (oidCount >= 2) badge = 'Bridge Walker';
+                document.getElementById('userName').textContent = '@' + userData.username;
+                document.getElementById('userBadge').textContent = badge;
+                document.getElementById('userKudos').textContent = userData.kudos || 0;
+                await generateQRCode();
+            } catch (error) { console.error('Error loading user data:', error); }
+        }
+
+        function showUserStatus() {
+            document.getElementById('userStatusBar').classList.remove('hidden');
+            document.getElementById('quickNav').classList.remove('hidden');
+            document.getElementById('signInPrompt')?.classList.add('hidden');
+        }
+
+        async function signUpOrIn(emailId, passwordId, formId, successId) {
+            const email = document.getElementById(emailId).value.trim();
+            const password = document.getElementById(passwordId).value;
+            if (!email || !email.includes('@')) { alert('Please enter a valid email address.'); return; }
+            if (!password || password.length < 6) { alert('Password must be at least 6 characters.'); return; }
+            const form = document.getElementById(formId);
+            const btn = form.querySelector('button');
+            const originalText = btn.textContent;
+            btn.textContent = 'Signing in...'; btn.disabled = true;
+            try {
+                const { data: signInData, error: signInError } = await supabaseClient.auth.signInWithPassword({ email, password });
+                if (!signInError && signInData.session) {
+                    document.getElementById(formId).classList.add('hidden');
+                    document.getElementById(successId).classList.remove('hidden');
+                    currentUser = signInData.session.user; await loadUserData(); showUserStatus(); return;
+                }
+                const { data: signUpData, error: signUpError } = await supabaseClient.auth.signUp({ email, password });
+                if (signUpError) {
+                    if (signUpError.message.includes('already registered')) { alert('Account exists but password is wrong. Try again or WhatsApp Chris.'); }
+                    else { alert('Error: ' + signUpError.message); }
+                    return;
+                }
+                if (signUpData.session) {
+                    document.getElementById(formId).classList.add('hidden');
+                    document.getElementById(successId).classList.remove('hidden');
+                    currentUser = signUpData.session.user; await loadUserData(); showUserStatus();
+                } else {
+                    document.getElementById(formId).classList.add('hidden');
+                    document.getElementById(successId).classList.remove('hidden');
+                    document.getElementById(successId).innerHTML = '<p class="font-bold text-green-400">Check your email!</p><p class="text-sm mt-1 text-sky-300">Click the confirmation link to complete sign up.</p>';
+                }
+            } catch (e) { alert('Error: ' + (e.message || e)); }
+            finally { btn.textContent = originalText; btn.disabled = false; }
+        }
+
+        async function signOut() { await supabaseClient.auth.signOut(); currentUser = null; location.reload(); }
+
+        async function generateQRCode() {
+            if (!currentUser) return;
+            const referralUrl = window.location.origin + '?ref=' + currentUser.id;
+            userQRCode = await QRCode.toDataURL(referralUrl, { width: 300, color: { dark: CONFIG.primaryColor, light: '#ffffff' } });
+            document.getElementById('qrImage').src = userQRCode;
+        }
+
+        async function loadRecentActivity() {
+            try {
+                const { data } = await supabaseClient.from('users').select('username, created_at').order('created_at', { ascending: false }).limit(5);
+                if (data && data.length > 0) {
+                    document.getElementById('activityList').innerHTML = data.map(user => '<p>' + CONFIG.loadingIcon + ' <strong>' + user.username + '</strong> joined the village!</p>').join('');
+                } else { document.getElementById('activityList').innerHTML = '<p class="text-center text-sky-600">Be the first to join!</p>'; }
+            } catch (error) { console.error('Error loading activity:', error); }
+        }
+
+        async function awardKudos(amount, reason) {
+            if (!currentUser) return;
+            try {
+                await supabaseClient.rpc('increment_kudos', { user_id: currentUser.id, amount: amount });
+                await supabaseClient.from('kudos_transactions').insert([{ user_id: currentUser.id, amount: amount, reason: reason }]);
+            } catch (error) { console.error('Kudos error:', error); }
+        }
+
+        function getYouTubeEmbedUrl(url) {
+            if (!url) return '';
+            let videoId = '';
+            if (url.includes('youtube.com/shorts/')) videoId = url.split('youtube.com/shorts/')[1].split('?')[0];
+            else if (url.includes('youtu.be/')) videoId = url.split('youtu.be/')[1].split('?')[0];
+            else if (url.includes('youtube.com/watch')) videoId = new URLSearchParams(url.split('?')[1]).get('v');
+            else if (url.includes('youtube.com/embed/')) videoId = url.split('youtube.com/embed/')[1].split('?')[0];
+            return videoId ? 'https://www.youtube.com/embed/' + videoId : url;
+        }
+
+        async function loadBroadcast() {
+            try {
+                const { data } = await supabaseClient.from('broadcast').select('*').eq('is_active', true).limit(1).single();
+                if (!data) return;
+                document.getElementById('broadcastVideo').src = getYouTubeEmbedUrl(data.video_url);
+                document.getElementById('broadcastTitle').textContent = data.title || 'Village Broadcast';
+                document.getElementById('broadcastSection').classList.remove('hidden');
+                if (data.is_emergency) document.getElementById('emergencyBanner').classList.remove('hidden');
+            } catch (e) { console.log('Broadcast not available'); }
+        }
+
+        function switchTab(tab) {
+            const identifyView = document.getElementById('identifyView');
+            const roastView = document.getElementById('roastView');
+            const identifyTab = document.getElementById('identifyTab');
+            const roastTab = document.getElementById('roastTab');
+            if (tab === 'identify') {
+                identifyView.classList.remove('hidden'); roastView.classList.add('hidden');
+                identifyTab.className = 'flex-1 py-3 rounded-xl tab-active transition font-semibold';
+                roastTab.className = 'flex-1 py-3 rounded-xl tab-inactive transition font-semibold';
+            } else {
+                identifyView.classList.add('hidden'); roastView.classList.remove('hidden');
+                identifyTab.className = 'flex-1 py-3 rounded-xl tab-inactive transition font-semibold';
+                roastTab.className = 'flex-1 py-3 rounded-xl tab-active transition font-semibold';
+            }
+        }
+
+        function switchLearnTab(tab) {
+            document.getElementById('learnSailing').classList.add('hidden');
+            document.getElementById('learnBoats').classList.add('hidden');
+            document.getElementById('learnSafety').classList.add('hidden');
+            document.getElementById('learnTab1').className = 'learn-tab-inactive px-4 py-2 transition text-sm';
+            document.getElementById('learnTab2').className = 'learn-tab-inactive px-4 py-2 transition text-sm';
+            document.getElementById('learnTab3').className = 'learn-tab-inactive px-4 py-2 transition text-sm';
+            if (tab === 'sailing') {
+                document.getElementById('learnSailing').classList.remove('hidden');
+                document.getElementById('learnTab1').className = 'learn-tab-active px-4 py-2 transition text-sm';
+            } else if (tab === 'boats') {
+                document.getElementById('learnBoats').classList.remove('hidden');
+                document.getElementById('learnTab2').className = 'learn-tab-active px-4 py-2 transition text-sm';
+            } else {
+                document.getElementById('learnSafety').classList.remove('hidden');
+                document.getElementById('learnTab3').className = 'learn-tab-active px-4 py-2 transition text-sm';
+            }
+        }
+
+        function switchView(view) {
+            const leaderboard = document.getElementById('leaderboardView');
+            const qr = document.getElementById('qrView');
+            leaderboard.classList.add('hidden'); qr.classList.add('hidden');
+            if (view === 'leaderboard') { leaderboard.classList.remove('hidden'); leaderboard.scrollIntoView({ behavior: 'smooth' }); loadLeaderboard(); }
+            else if (view === 'qr') { qr.classList.remove('hidden'); qr.scrollIntoView({ behavior: 'smooth' }); }
+        }
+
+        async function loadLeaderboard() {
+            try {
+                const { data } = await supabaseClient.from('users').select('username, kudos, oid_memberships').order('kudos', { ascending: false }).limit(10);
+                if (data) {
+                    document.getElementById('leaderboardList').innerHTML = data.map((user, i) => {
+                        const oidCount = user.oid_memberships.length;
+                        let badge = '\u2693';
+                        if (oidCount >= 5) badge = '\uD83D\uDC1D';
+                        else if (oidCount >= 2) badge = '\uD83C\uDF09';
+                        return '<div class="flex items-center justify-between bg-sky-900/30 p-4 rounded-xl"><div class="flex items-center gap-3"><span class="text-2xl font-bold text-sky-400">#' + (i + 1) + '</span><span>' + badge + '</span><span class="font-bold text-white">@' + user.username + '</span></div><span class="text-amber-400 font-bold">' + user.kudos + ' kudos</span></div>';
+                    }).join('');
+                }
+            } catch (error) { console.error('Error loading leaderboard:', error); }
+        }
+
+        async function handleUpload(mode, input) {
+            const file = input.files[0];
+            if (!file) return;
+            ['identifyView', 'roastView'].forEach(v => document.getElementById(v).classList.add('hidden'));
+            document.getElementById('loadingView').classList.remove('hidden');
+            startLoadingTimer();
+            try {
+                const { base64, dataUrl } = await compressImage(file, 800, 0.7);
+                updateLoadingMessage('Checking the chart plotter...');
+                const data = await fetchWithRetry('/.netlify/functions/analyze-image', {
+                    method: 'POST', headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ image: base64, mode: mode, oidType: CONFIG.oidSlug, userId: currentUser?.id })
+                }, 4);
+                if (data.error) { stopLoadingTimer(); alert(data.description || 'Analysis failed.'); resetToHome(); return; }
+                currentResult = { mode: mode, image: dataUrl, ...data };
+                showResult(currentResult);
+                if (currentUser) {
+                    await awardKudos(10, 'Image analysis');
+                    document.getElementById('kudosEarned').classList.remove('hidden');
+                    document.getElementById('signInPrompt').classList.add('hidden');
+                    await loadUserData();
+                }
+            } catch (error) {
+                console.error('Error:', error); stopLoadingTimer();
+                alert(error.name === 'AbortError' ? 'Request timed out. Try again.' : 'Error analyzing image. Please try again.');
+                resetToHome();
+            }
+            input.value = '';
+        }
+
+        function showResult(result) {
+            stopLoadingTimer();
+            document.getElementById('loadingView').classList.add('hidden');
+            document.getElementById('resultView').classList.remove('hidden');
+            document.getElementById('resultImage').src = result.image;
+            document.getElementById('resultTitle').textContent = result.title || 'Identified!';
+            const { searchTerm, cleanDesc } = parseAmazonSearch(result.description || '');
+            document.getElementById('resultDescription').textContent = cleanDesc;
+            const amazonLinkDiv = document.getElementById('amazonLink');
+            const amazonBtn = document.getElementById('amazonBtn');
+            if (searchTerm) {
+                const amazonUrl = 'https://www.amazon.co.uk/s?k=' + encodeURIComponent(searchTerm) + '&tag=chrisptee-21';
+                amazonBtn.href = amazonUrl;
+                amazonBtn.innerHTML = '\u2693 Find "' + searchTerm + '" on Amazon';
+                amazonLinkDiv.classList.remove('hidden');
+            } else { amazonLinkDiv.classList.add('hidden'); }
+            const priceEl = document.getElementById('resultPrice');
+            if (result.price) { priceEl.textContent = 'Est. Value: ' + result.price; priceEl.classList.remove('hidden'); }
+            else { priceEl.classList.add('hidden'); }
+            document.getElementById('resultAttribution').textContent = currentUser ? 'Identified by @' + currentUser.email.split('@')[0] : 'Identified by ' + CONFIG.oidName;
+        }
+
+        function resetToHome() {
+            document.getElementById('resultView').classList.add('hidden');
+            document.getElementById('loadingView').classList.add('hidden');
+            document.getElementById('identifyView').classList.remove('hidden');
+            document.getElementById('kudosEarned')?.classList.add('hidden');
+            currentResult = null;
+            ['cameraInput', 'galleryInput', 'roastCamera', 'roastGallery'].forEach(id => { const input = document.getElementById(id); if (input) input.value = ''; });
+        }
+
+        function wrapText(ctx, text, x, y, maxWidth, lineHeight) {
+            const words = text.split(' '); let line = ''; let lineCount = 0; const maxLines = 6;
+            for (let word of words) {
+                const testLine = line + word + ' ';
+                if (ctx.measureText(testLine).width > maxWidth && line) {
+                    ctx.fillText(line.trim(), x, y); line = word + ' '; y += lineHeight; lineCount++;
+                    if (lineCount >= maxLines) { ctx.fillText('...', x, y); return; }
+                } else { line = testLine; }
+            }
+            ctx.fillText(line.trim(), x, y);
+        }
+
+        async function shareResult() {
+            if (!currentResult) return;
+            const canvas = document.getElementById('resultCanvas');
+            const ctx = canvas.getContext('2d');
+            canvas.width = 1080; canvas.height = 1350;
+            const gradient = ctx.createLinearGradient(0, 0, 0, canvas.height);
+            gradient.addColorStop(0, '#0e6080'); gradient.addColorStop(1, '#0ea5e9');
+            ctx.fillStyle = gradient; ctx.fillRect(0, 0, canvas.width, canvas.height);
+            const img = new Image();
+            img.onload = async () => {
+                const scale = Math.min(800 / img.width, 500 / img.height);
+                const w = img.width * scale; const h = img.height * scale;
+                const x = (canvas.width - w) / 2; const y = 80;
+                ctx.shadowColor = 'rgba(0,0,0,0.3)'; ctx.shadowBlur = 20;
+                ctx.drawImage(img, x, y, w, h); ctx.shadowBlur = 0;
+                ctx.fillStyle = '#fbbf24'; ctx.textAlign = 'center';
+                ctx.font = 'bold 48px Outfit, sans-serif';
+                ctx.fillText(currentResult.title || 'Sail-Oid', canvas.width / 2, y + h + 70);
+                const { cleanDesc } = parseAmazonSearch(currentResult.description || '');
+                ctx.fillStyle = 'white'; ctx.font = '24px Outfit, sans-serif';
+                wrapText(ctx, cleanDesc.substring(0, 300), canvas.width / 2, y + h + 120, 900, 35);
+                ctx.fillStyle = '#fbbf24'; ctx.font = 'bold 32px Outfit, sans-serif';
+                ctx.fillText('sail-oid.co.uk', canvas.width / 2, canvas.height - 80);
+                if (navigator.share && navigator.canShare) {
+                    try {
+                        const blob = await new Promise(resolve => canvas.toBlob(resolve, 'image/png'));
+                        const file = new File([blob], 'sail-oid-result.png', { type: 'image/png' });
+                        if (navigator.canShare({ files: [file] })) {
+                            await navigator.share({ title: currentResult.title || 'Sail-Oid Result', text: 'Check out what Sail-Oid identified! sail-oid.co.uk', files: [file] });
+                            return;
+                        }
+                    } catch (e) { if (e.name !== 'AbortError') console.log('Share failed:', e); }
+                }
+                try { await navigator.clipboard.writeText('Check out Sail-Oid - AI nautical identification! sail-oid.co.uk'); alert('Link copied! Share it on the pontoon.'); }
+                catch (e) { alert('Share: sail-oid.co.uk'); }
+            };
+            img.src = currentResult.image;
+        }
+
+        async function downloadResult() {
+            if (!currentResult) return;
+            const canvas = document.getElementById('resultCanvas');
+            const ctx = canvas.getContext('2d');
+            canvas.width = 1080; canvas.height = 1350;
+            const gradient = ctx.createLinearGradient(0, 0, 0, canvas.height);
+            gradient.addColorStop(0, '#0e6080'); gradient.addColorStop(1, '#0ea5e9');
+            ctx.fillStyle = gradient; ctx.fillRect(0, 0, canvas.width, canvas.height);
+            const img = new Image();
+            img.onload = () => {
+                const scale = Math.min(800 / img.width, 500 / img.height);
+                const w = img.width * scale; const h = img.height * scale;
+                const x = (canvas.width - w) / 2; const y = 80;
+                ctx.shadowColor = 'rgba(0,0,0,0.3)'; ctx.shadowBlur = 20;
+                ctx.drawImage(img, x, y, w, h); ctx.shadowBlur = 0;
+                ctx.fillStyle = '#fbbf24'; ctx.font = 'bold 48px Outfit, sans-serif'; ctx.textAlign = 'center';
+                ctx.fillText(currentResult.title || CONFIG.oidName, canvas.width / 2, y + h + 70);
+                const { cleanDesc } = parseAmazonSearch(currentResult.description || '');
+                ctx.fillStyle = 'white'; ctx.font = '28px Outfit, sans-serif';
+                wrapText(ctx, cleanDesc.substring(0, 350), canvas.width / 2, y + h + 120, 900, 38);
+                ctx.fillStyle = '#fbbf24'; ctx.font = 'bold 32px Outfit, sans-serif';
+                ctx.fillText('sail-oid.co.uk', canvas.width / 2, canvas.height - 80);
+                const link = document.createElement('a');
+                link.download = 'sail-oid-result.png'; link.href = canvas.toDataURL('image/png'); link.click();
+            };
+            img.src = currentResult.image;
+        }
+
+        function downloadQR() {
+            if (!userQRCode) return;
+            const link = document.createElement('a');
+            link.download = CONFIG.oidName + '-referral-qr.png'; link.href = userQRCode; link.click();
+        }
+
+        let chatHistory = [];
+        let isChatLoading = false;
+        const RATE_LIMIT_MS = 2000;
+        let lastMessageTime = 0;
+
+        const savedChat = localStorage.getItem('dave_chat_history');
+        if (savedChat) { try { chatHistory = JSON.parse(savedChat); } catch(e) { chatHistory = []; } }
+
+        function initChat() {
+            renderMessages();
+            if (chatHistory.length === 0) {
+                addDaveMessage("Right then! I'm Captain Dave the Rave \u2014 Bristol born, dance floors to deep water. Spent the 90s raving at Lakota and Trinity, now I'm a qualified Captain and PADI Dive Master. The sea became my new rave, mate \u2014 same freedom, same respect, same community. Whether you want to learn to sail, identify a boat, or just chat about life on the water \u2014 ask away. PLUR on the water, always. What can I help with?");
+            }
+        }
+
+        function renderMessages() {
+            const container = document.getElementById('chatMessages');
+            container.innerHTML = chatHistory.map(msg =>
+                '<div class="mb-3 flex ' + (msg.role === 'user' ? 'justify-end' : 'justify-start') + '">' +
+                '<div class="' + (msg.role === 'user' ? 'msg-user' : 'msg-dave') + ' p-4 text-sm text-white whitespace-pre-wrap">' + escapeHtml(msg.text) + '</div></div>'
+            ).join('');
+            container.scrollTop = container.scrollHeight;
+        }
+
+        function addDaveMessage(text) {
+            chatHistory.push({ role: 'dave', text });
+            localStorage.setItem('dave_chat_history', JSON.stringify(chatHistory.slice(-50)));
+            renderMessages();
+        }
+
+        function addUserMessage(text) {
+            chatHistory.push({ role: 'user', text });
+            localStorage.setItem('dave_chat_history', JSON.stringify(chatHistory.slice(-50)));
+            renderMessages();
+        }
+
+        function showTyping() {
+            const container = document.getElementById('chatMessages');
+            const div = document.createElement('div');
+            div.id = 'typing'; div.className = 'mb-3 flex justify-start';
+            div.innerHTML = '<div class="msg-dave p-4"><div class="typing-dots"><span></span><span></span><span></span></div></div>';
+            container.appendChild(div);
+            container.scrollTop = container.scrollHeight;
+        }
+
+        function removeTyping() { const t = document.getElementById('typing'); if (t) t.remove(); }
+
+        async function sendMessage() {
+            if (isChatLoading) return;
+            const now = Date.now();
+            if (now - lastMessageTime < RATE_LIMIT_MS) return;
+            const input = document.getElementById('userInput');
+            const text = input.value.trim();
+            if (!text) return;
+            input.value = ''; lastMessageTime = now; isChatLoading = true;
+            document.getElementById('sendBtn').disabled = true;
+            document.getElementById('sendText').textContent = '...';
+            addUserMessage(text); showTyping();
+            try {
+                const recentHistory = chatHistory.slice(-6).map(m => ({ role: m.role === 'user' ? 'user' : 'model', text: m.text }));
+                const response = await fetch('/.netlify/functions/chat-dave', {
+                    method: 'POST', headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ question: text, history: recentHistory })
+                });
+                removeTyping();
+                const data = await response.json();
+                if (data.reply) { addDaveMessage(data.reply); }
+                else { addDaveMessage("Sorry mate, I got a bit lost there. The charts went foggy for a sec. Ask me again?"); }
+            } catch (err) {
+                removeTyping();
+                addDaveMessage("Something went wrong \u2014 might be a dodgy connection. Give it another go in a sec.");
+            }
+            isChatLoading = false;
+            document.getElementById('sendBtn').disabled = false;
+            document.getElementById('sendText').textContent = '\u26F5';
+        }
+
+        function clearChat() {
+            if (!confirm('Clear chat history?')) return;
+            chatHistory = []; localStorage.removeItem('dave_chat_history'); renderMessages();
+            addDaveMessage("Fresh start! Right then, what can I help you with, mate?");
+        }
+
+        function escapeHtml(text) { const div = document.createElement('div'); div.textContent = text; return div.innerHTML; }
+
+        function toggleQA(item) {
+            const answer = item.querySelector('.qa-answer');
+            const icon = item.querySelector('.qa-question span:last-child');
+            if (!answer) return;
+            const isOpen = answer.classList.contains('open');
+            document.querySelectorAll('.qa-answer').forEach(a => a.classList.remove('open'));
+            document.querySelectorAll('.qa-question span:last-child').forEach(s => { if (s.textContent === '\u2212') s.textContent = '+'; });
+            if (!isOpen) { answer.classList.add('open'); if (icon) icon.textContent = '\u2212'; }
+        }
+
+        const observer = new IntersectionObserver((entries) => {
+            entries.forEach(entry => { if (entry.isIntersecting) entry.target.classList.add('visible'); });
+        }, { threshold: 0.1 });
+        document.querySelectorAll('.section-fade').forEach(el => observer.observe(el));
+
+        const dotNavLinks = document.querySelectorAll('.dot-nav a');
+        const sections = document.querySelectorAll('[id^="page"]');
+        const dotObserver = new IntersectionObserver((entries) => {
+            entries.forEach(entry => {
+                if (entry.isIntersecting) {
+                    dotNavLinks.forEach(link => link.classList.remove('active'));
+                    const activeLink = document.querySelector('.dot-nav a[href="#' + entry.target.id + '"]');
+                    if (activeLink) activeLink.classList.add('active');
+                }
+            });
+        }, { threshold: 0.3 });
+        sections.forEach(section => dotObserver.observe(section));
+
+        window.onload = function() {
+            checkAgeVerification(); checkUser(); loadRecentActivity(); loadBroadcast(); initChat();
+        };
+
+        const urlParams = new URLSearchParams(window.location.search);
+        const refCode = urlParams.get('ref');
+        if (refCode) localStorage.setItem('referredBy', refCode);
+
+        // ==================== MEETING POINT GENERATOR ====================
+        const W3W_KEY = 'R7VL7Q93';
+        let currentW3WAddress = '';
+        let currentUseCase = { icon: '⛵', title: 'My Berth', label: 'Berth' };
+        let w3wSuggestTimer = null;
+
+        function selectUseCase(btn) {
+            document.querySelectorAll('.usecase-btn').forEach(b => b.classList.remove('active'));
+            btn.classList.add('active');
+            currentUseCase = { icon: btn.dataset.icon, title: btn.dataset.title, label: btn.dataset.label };
+        }
+        function cleanW3W(val) { return val.replace(/^\/+/, '').toLowerCase().trim(); }
+        function isCompleteW3W(val) { const parts = cleanW3W(val).split('.'); return parts.length === 3 && parts.every(p => p.length > 0); }
+        function handleW3WInput(val) {
+            clearTimeout(w3wSuggestTimer);
+            const clean = cleanW3W(val);
+            if (clean.length < 3) { document.getElementById('w3wSuggestions').classList.add('hidden'); return; }
+            w3wSuggestTimer = setTimeout(() => fetchW3WSuggestions(clean), 280);
+        }
+        function handleW3WKeydown(e) { if (e.key === 'Escape') document.getElementById('w3wSuggestions').classList.add('hidden'); }
+        async function fetchW3WSuggestions(partial) {
+            try {
+                const res = await fetch(`https://api.what3words.com/v3/autosuggest?input=${encodeURIComponent(partial)}&key=${W3W_KEY}&language=en&n-results=4&clip-to-country=GB`);
+                const data = await res.json();
+                const box = document.getElementById('w3wSuggestions');
+                if (!data.suggestions || data.suggestions.length === 0) { box.classList.add('hidden'); return; }
+                box.innerHTML = data.suggestions.map(s =>
+                    `<div class="w3w-suggestion" onclick="selectAddress('${s.words}')">
+                        <span class="text-sky-400">///</span><span class="text-white">${s.words}</span>
+                        ${s.nearestPlace ? `<span class="text-sky-600 text-xs ml-2">${s.nearestPlace}</span>` : ''}
+                    </div>`
+                ).join('');
+                box.classList.remove('hidden');
+            } catch(e) { /* silent fail */ }
+        }
+        function selectAddress(words) {
+            currentW3WAddress = words;
+            document.getElementById('w3wInput').value = words;
+            document.getElementById('w3wSuggestions').classList.add('hidden');
+        }
+        async function findMySpot() {
+            const btn = document.getElementById('geoBtn');
+            const status = document.getElementById('geoStatus');
+            if (!navigator.geolocation) { status.textContent = 'Geolocation not available.'; status.classList.remove('hidden'); return; }
+            btn.textContent = '⏳ Finding your spot...'; btn.disabled = true; status.classList.add('hidden');
+            navigator.geolocation.getCurrentPosition(
+                async (pos) => {
+                    const { latitude: lat, longitude: lng } = pos.coords;
+                    try {
+                        const res = await fetch(`https://api.what3words.com/v3/convert-to-3wa?coordinates=${lat},${lng}&key=${W3W_KEY}&language=en`);
+                        const data = await res.json();
+                        if (data.words) { currentW3WAddress = data.words; document.getElementById('w3wInput').value = data.words; status.textContent = `Got it! ///${data.words}`; status.classList.remove('hidden'); }
+                        else { status.textContent = 'Could not convert location.'; status.classList.remove('hidden'); }
+                    } catch(e) { status.textContent = 'Location found — try typing the address.'; status.classList.remove('hidden'); }
+                    btn.textContent = '📍 Find My Exact Spot'; btn.disabled = false;
+                },
+                (err) => {
+                    const msgs = { 1: 'Location access denied.', 2: 'Location unavailable.', 3: 'Location timed out.' };
+                    status.textContent = msgs[err.code] || 'Could not get location.'; status.classList.remove('hidden');
+                    btn.textContent = '📍 Find My Exact Spot'; btn.disabled = false;
+                },
+                { timeout: 10000, maximumAge: 60000 }
+            );
+        }
+        function generateMeetCard() {
+            const inputVal = cleanW3W(document.getElementById('w3wInput').value);
+            if (!isCompleteW3W(inputVal)) { alert('Please enter a complete what3words address (three words separated by dots).'); return; }
+            currentW3WAddress = inputVal;
+            const eventName = document.getElementById('meetEventName').value.trim();
+            const locationLabel = document.getElementById('meetLocationLabel').value.trim();
+            document.getElementById('cardIcon').textContent = currentUseCase.icon;
+            document.getElementById('cardUseCaseTitle').textContent = currentUseCase.title;
+            document.getElementById('cardW3WDisplay').textContent = '///' + currentW3WAddress;
+            document.getElementById('cardLocationLabel').textContent = locationLabel || currentUseCase.label;
+            document.getElementById('cardEventName').textContent = eventName || '';
+            const qrContainer = document.getElementById('meetQR');
+            qrContainer.innerHTML = '';
+            const qrCanvas = document.createElement('canvas');
+            qrContainer.appendChild(qrCanvas);
+            QRCode.toCanvas(qrCanvas, `https://what3words.com/${currentW3WAddress}`, { width: 124, margin: 0, color: { dark: '#0ea5e9', light: '#ffffff' } });
+            document.getElementById('meetCardPreview').classList.remove('hidden');
+            document.getElementById('meetCardPreview').scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+        }
+        async function shareSpot() {
+            if (!currentW3WAddress) return;
+            const url = `https://what3words.com/${currentW3WAddress}`;
+            const text = `${currentUseCase.icon} ${currentUseCase.title}: ///${currentW3WAddress}\n\n${url}`;
+            if (navigator.share) { try { await navigator.share({ title: currentUseCase.title, text, url }); return; } catch(e) { if (e.name === 'AbortError') return; } }
+            navigator.clipboard.writeText(text).then(() => alert('Copied!')).catch(() => alert(url));
+        }
+        function copyW3WLink() {
+            if (!currentW3WAddress) return;
+            const url = `https://what3words.com/${currentW3WAddress}`;
+            navigator.clipboard.writeText(url).then(() => alert('Link copied!')).catch(() => alert(url));
+        }
+        function resetMeetCard() {
+            currentW3WAddress = '';
+            document.getElementById('w3wInput').value = '';
+            document.getElementById('meetEventName').value = '';
+            document.getElementById('meetLocationLabel').value = '';
+            document.getElementById('meetCardPreview').classList.add('hidden');
+            document.getElementById('geoStatus').classList.add('hidden');
+        }
+        document.addEventListener('click', (e) => {
+            if (!e.target.closest('#w3wInput') && !e.target.closest('#w3wSuggestions')) {
+                document.getElementById('w3wSuggestions')?.classList.add('hidden');
+            }
+        });
+    </script>
+</body>
+</html>

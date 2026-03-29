@@ -1,0 +1,487 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Customise Your Berth | Sail-Oid Village</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Caveat:wght@400;700&family=Outfit:wght@300;400;600;800&display=swap" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <style>
+        :root {
+            --deep: #071e33;
+            --accent: #0ea5e9;
+            --accent-dark: #0284c7;
+            --cream: #e0f2fe;
+            --text: #bae6fd;
+            --text-muted: #7dd3fc;
+            --danger: #e74c3c;
+            --success: #27ae60;
+        }
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            font-family: 'Outfit', sans-serif;
+            background: var(--deep);
+            color: var(--text);
+            min-height: 100vh;
+            font-size: 18px;
+            line-height: 1.7;
+        }
+        .font-hand { font-family: 'Caveat', cursive; }
+
+        .edit-header {
+            text-align: center;
+            padding: 40px 20px 10px;
+        }
+        .edit-header h1 {
+            font-family: 'Caveat', cursive;
+            font-size: clamp(2rem, 7vw, 3rem);
+            color: var(--accent);
+        }
+        .edit-header p { color: var(--text-muted); margin-top: 4px; }
+        .edit-header .hamlet-name {
+            font-family: 'Caveat', cursive;
+            font-size: 1.4rem;
+            color: var(--cream);
+        }
+
+        .container { max-width: 650px; margin: 0 auto; padding: 0 20px; }
+
+        .tabs {
+            display: flex;
+            gap: 4px;
+            margin: 30px auto 0;
+            max-width: 650px;
+            padding: 0 20px;
+            overflow-x: auto;
+        }
+        .tab {
+            padding: 12px 20px;
+            background: rgba(14,165,233,0.06);
+            border: 1px solid rgba(14,165,233,0.15);
+            border-bottom: none;
+            border-radius: 12px 12px 0 0;
+            color: var(--text-muted);
+            font-family: 'Outfit', sans-serif;
+            font-size: 0.95rem;
+            font-weight: 600;
+            cursor: pointer;
+            white-space: nowrap;
+            transition: background 0.2s, color 0.2s;
+            min-height: 48px;
+        }
+        .tab.active {
+            background: rgba(14,165,233,0.12);
+            color: var(--accent);
+            border-color: rgba(14,165,233,0.3);
+        }
+
+        .panel {
+            display: none;
+            background: rgba(14,165,233,0.04);
+            border: 1px solid rgba(14,165,233,0.15);
+            border-radius: 0 16px 16px 16px;
+            padding: 30px 24px;
+            margin-bottom: 30px;
+            max-width: 650px;
+            margin-left: auto;
+            margin-right: auto;
+        }
+        .panel.active { display: block; }
+        .panel h2 {
+            font-family: 'Caveat', cursive;
+            font-size: 1.6rem;
+            color: var(--accent);
+            margin-bottom: 6px;
+        }
+        .panel-hint {
+            color: var(--text-muted);
+            font-size: 0.9rem;
+            margin-bottom: 24px;
+        }
+
+        input[type="text"], input[type="url"], textarea {
+            width: 100%;
+            padding: 14px 18px;
+            background: rgba(14,165,233,0.06);
+            border: 2px solid rgba(14,165,233,0.2);
+            border-radius: 12px;
+            color: var(--text);
+            font-family: 'Outfit', sans-serif;
+            font-size: 18px;
+            outline: none;
+            transition: border-color 0.2s;
+        }
+        input:focus, textarea:focus { border-color: var(--accent); }
+        input::placeholder, textarea::placeholder { color: var(--text-muted); opacity: 0.5; }
+        .input-label {
+            display: block;
+            font-weight: 600;
+            color: var(--cream);
+            margin-bottom: 6px;
+            font-size: 0.9rem;
+        }
+        .input-group { margin-bottom: 18px; }
+
+        .shelf-item {
+            background: rgba(14,165,233,0.04);
+            border: 1px solid rgba(14,165,233,0.12);
+            border-radius: 14px;
+            padding: 18px;
+            margin-bottom: 14px;
+        }
+        .shelf-item-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 10px;
+        }
+        .shelf-item-num {
+            font-family: 'Caveat', cursive;
+            color: var(--accent);
+            font-size: 1.1rem;
+        }
+        .remove-btn {
+            background: none;
+            border: none;
+            color: var(--text-muted);
+            font-size: 1.2rem;
+            cursor: pointer;
+            padding: 4px 8px;
+        }
+        .remove-btn:hover { color: var(--danger); }
+
+        .add-btn {
+            width: 100%;
+            padding: 14px;
+            background: rgba(14,165,233,0.06);
+            border: 2px dashed rgba(14,165,233,0.2);
+            border-radius: 14px;
+            color: var(--text-muted);
+            font-family: 'Outfit', sans-serif;
+            font-size: 1rem;
+            cursor: pointer;
+            min-height: 56px;
+            transition: border-color 0.2s, color 0.2s;
+        }
+        .add-btn:hover { border-color: var(--accent); color: var(--accent); }
+
+        .btn-save {
+            display: block;
+            width: 100%;
+            max-width: 650px;
+            margin: 0 auto 20px;
+            padding: 18px;
+            background: linear-gradient(135deg, var(--accent), var(--accent-dark));
+            color: var(--deep);
+            font-family: 'Outfit', sans-serif;
+            font-size: 1.1rem;
+            font-weight: 800;
+            border: none;
+            border-radius: 14px;
+            cursor: pointer;
+            min-height: 56px;
+            transition: transform 0.2s, box-shadow 0.2s;
+        }
+        .btn-save:hover { transform: translateY(-2px); box-shadow: 0 8px 25px rgba(14,165,233,0.3); }
+        .btn-save:disabled { opacity: 0.6; cursor: not-allowed; transform: none !important; }
+
+        .btn-view {
+            display: block;
+            text-align: center;
+            max-width: 650px;
+            margin: 0 auto 40px;
+            padding: 14px;
+            color: var(--accent);
+            text-decoration: none;
+            font-weight: 600;
+        }
+
+        .status-msg {
+            text-align: center;
+            padding: 12px;
+            border-radius: 12px;
+            margin-bottom: 20px;
+            max-width: 650px;
+            margin-left: auto;
+            margin-right: auto;
+            display: none;
+        }
+        .status-msg.show { display: block; }
+        .status-msg.ok { background: rgba(39,174,96,0.1); color: var(--success); border: 1px solid rgba(39,174,96,0.2); }
+        .status-msg.err { background: rgba(231,76,60,0.1); color: var(--danger); border: 1px solid rgba(231,76,60,0.2); }
+
+        #loading {
+            display: flex; flex-direction: column; align-items: center;
+            justify-content: center; min-height: 100vh; text-align: center;
+        }
+        .loading-spinner {
+            width: 48px; height: 48px;
+            border: 4px solid var(--accent-dark); border-top-color: var(--accent);
+            border-radius: 50%; animation: spin 0.8s linear infinite; margin-bottom: 1.5rem;
+        }
+        @keyframes spin { to { transform: rotate(360deg); } }
+        #error { display: none; text-align: center; padding: 80px 20px; }
+        #error h1 { font-family: 'Caveat', cursive; font-size: 2rem; color: var(--accent); margin-bottom: 12px; }
+        #error p { color: var(--text-muted); }
+
+        .current-value {
+            font-size: 0.85rem;
+            color: var(--text-muted);
+            font-style: italic;
+            margin-bottom: 8px;
+        }
+        .current-value span { color: var(--accent); }
+
+        @media (max-width: 480px) {
+            .tabs { gap: 2px; }
+            .tab { padding: 10px 14px; font-size: 0.85rem; }
+            .panel { padding: 20px 16px; }
+        }
+    </style>
+</head>
+<body>
+    <div id="loading">
+        <div class="loading-spinner"></div>
+        <p style="color:var(--text-muted)">Finding your berth...</p>
+    </div>
+
+    <div id="error">
+        <h1>Can't Find This Berth</h1>
+        <p>Invalid or missing edit link. Use the secret link from your confirmation screen.</p>
+    </div>
+
+    <div id="main" style="display:none;">
+        <header class="edit-header">
+            <h1>⛵ Customise Your Berth</h1>
+            <p class="hamlet-name" id="hamletName"></p>
+        </header>
+
+        <div class="tabs" id="tabs">
+            <button class="tab active" onclick="showTab('shelves')">Kit Locker</button>
+            <button class="tab" onclick="showTab('video')">Watch Below</button>
+            <button class="tab" onclick="showTab('stall')">Chandlery</button>
+        </div>
+
+        <!-- KIT LOCKER -->
+        <div class="panel active" id="panel-shelves">
+            <h2>Kit Locker</h2>
+            <p class="panel-hint">Recommend gear you swear by. Up to 8 items. Amazon links get the village affiliate tag automatically.</p>
+            <div id="shelvesContainer"></div>
+            <button class="add-btn" id="addShelfBtn" onclick="addShelfItem()">+ Add a piece of kit</button>
+        </div>
+
+        <!-- WATCH BELOW -->
+        <div class="panel" id="panel-video">
+            <h2>Watch Below</h2>
+            <p class="panel-hint">Got a YouTube video — a sail, a passage log, a boat tour? It'll appear on your hamlet page.</p>
+            <div class="input-group">
+                <label class="input-label">Video title (optional)</label>
+                <input type="text" id="videoTitle" placeholder="e.g. Our First Atlantic Crossing">
+            </div>
+            <div class="input-group">
+                <label class="input-label">YouTube URL</label>
+                <input type="url" id="videoUrl" placeholder="https://www.youtube.com/watch?v=...">
+            </div>
+            <p class="current-value" id="currentVideo"></p>
+        </div>
+
+        <!-- CHANDLERY -->
+        <div class="panel" id="panel-stall">
+            <h2>Chandlery</h2>
+            <p class="panel-hint">Sell marine gear on eBay? Enter your seller username and your live listings appear on your hamlet page.</p>
+            <div class="input-group">
+                <label class="input-label">eBay Seller Username</label>
+                <input type="text" id="ebaySeller" placeholder="e.g. your-ebay-username">
+            </div>
+            <p class="current-value" id="currentStall"></p>
+        </div>
+
+        <div class="status-msg" id="statusMsg"></div>
+        <button class="btn-save" id="saveBtn" onclick="saveExtras()">Save Changes</button>
+        <a class="btn-view" id="viewLink" href="#">View Your Berth</a>
+    </div>
+
+    <script>
+        const SUPABASE_URL = 'https://pdnjeynugptnavkdbmxh.supabase.co';
+        const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InBkbmpleW51Z3B0bmF2a2RibXhoIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjkwMTEzMDAsImV4cCI6MjA4NDU4NzMwMH0.GawisR01EykMtdauBMxenmHF2NXDMzDOJl8WgzkwFQo';
+
+        let sb;
+        try {
+            sb = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY, {
+                auth: { persistSession: false, autoRefreshToken: false, detectSessionInUrl: false }
+            });
+        } catch(e) {}
+
+        let hamletData = null;
+        let slug = '';
+        let token = '';
+
+        async function init() {
+            try {
+                var params = new URLSearchParams(window.location.search);
+                slug = params.get('slug');
+                token = params.get('token');
+                if (!slug || !token || !sb) { showError(); return; }
+
+                var { data: rows } = await sb
+                    .from('hamlet_data')
+                    .select('*')
+                    .eq('slug', slug)
+                    .eq('edit_token', token)
+                    .eq('active', true);
+
+                if (!rows || rows.length === 0) { showError(); return; }
+                hamletData = rows[0];
+
+                document.getElementById('hamletName').textContent = hamletData.name;
+                document.getElementById('viewLink').href = '/hamlet/' + slug;
+
+                var shelves = hamletData.shelves || [];
+                if (shelves.length > 0) {
+                    shelves.forEach(function(item) { addShelfItem(item); });
+                } else {
+                    addShelfItem();
+                }
+
+                if (hamletData.video_url) {
+                    document.getElementById('videoUrl').value = hamletData.video_url;
+                    document.getElementById('currentVideo').innerHTML = 'Currently: <span>' + escHtml(hamletData.video_url) + '</span>';
+                }
+                if (hamletData.video_title) {
+                    document.getElementById('videoTitle').value = hamletData.video_title;
+                }
+                if (hamletData.ebay_seller) {
+                    document.getElementById('ebaySeller').value = hamletData.ebay_seller;
+                    document.getElementById('currentStall').innerHTML = 'Currently: <span>' + escHtml(hamletData.ebay_seller) + '</span>';
+                }
+
+                document.getElementById('loading').style.display = 'none';
+                document.getElementById('main').style.display = 'block';
+            } catch (e) {
+                showError();
+            }
+        }
+
+        function showError() {
+            document.getElementById('loading').style.display = 'none';
+            document.getElementById('error').style.display = 'block';
+        }
+
+        function showTab(name) {
+            document.querySelectorAll('.panel').forEach(function(p) { p.classList.remove('active'); });
+            document.querySelectorAll('.tab').forEach(function(t) { t.classList.remove('active'); });
+            document.getElementById('panel-' + name).classList.add('active');
+            var map = { shelves: 0, video: 1, stall: 2 };
+            var tabs = document.querySelectorAll('.tab');
+            if (tabs[map[name]]) tabs[map[name]].classList.add('active');
+        }
+
+        function addShelfItem(data) {
+            var container = document.getElementById('shelvesContainer');
+            if (container.children.length >= 8) return;
+            var num = container.children.length + 1;
+            var item = document.createElement('div');
+            item.className = 'shelf-item';
+            item.innerHTML =
+                '<div class="shelf-item-header">' +
+                    '<span class="shelf-item-num">Kit ' + num + '</span>' +
+                    (num > 1 ? '<button class="remove-btn" onclick="removeShelfItem(this)">&times;</button>' : '') +
+                '</div>' +
+                '<div class="input-group"><input type="text" class="shelf-title" placeholder="Item name" value="' + escAttr((data && data.title) || '') + '"></div>' +
+                '<div class="input-group"><input type="url" class="shelf-url" placeholder="Amazon URL" value="' + escAttr((data && data.url) || '') + '"></div>' +
+                '<div class="input-group"><input type="text" class="shelf-desc" placeholder="Why you rate it (one line)" value="' + escAttr((data && data.desc) || '') + '"></div>';
+            container.appendChild(item);
+            if (container.children.length >= 8) document.getElementById('addShelfBtn').style.display = 'none';
+        }
+
+        function removeShelfItem(btn) {
+            btn.closest('.shelf-item').remove();
+            document.getElementById('addShelfBtn').style.display = '';
+            renumberShelves();
+        }
+
+        function renumberShelves() {
+            document.querySelectorAll('.shelf-item').forEach(function(item, i) {
+                item.querySelector('.shelf-item-num').textContent = 'Kit ' + (i + 1);
+            });
+        }
+
+        function gatherShelves() {
+            var items = [];
+            document.querySelectorAll('.shelf-item').forEach(function(item) {
+                var title = item.querySelector('.shelf-title').value.trim();
+                var url = item.querySelector('.shelf-url').value.trim();
+                var desc = item.querySelector('.shelf-desc').value.trim();
+                if (title || url) items.push({ title: title, url: addAffiliateTag(url), desc: desc });
+            });
+            return items;
+        }
+
+        function addAffiliateTag(url) {
+            if (!url) return '';
+            try {
+                var u = new URL(url);
+                if (u.hostname.includes('amazon')) {
+                    u.searchParams.set('tag', 'chrisptee-21');
+                    return u.toString();
+                }
+                return url;
+            } catch (e) { return url; }
+        }
+
+        async function saveExtras() {
+            var btn = document.getElementById('saveBtn');
+            btn.disabled = true;
+            btn.textContent = 'Saving...';
+            try {
+                var shelves = gatherShelves();
+                var videoUrl = document.getElementById('videoUrl').value.trim() || null;
+                var videoTitle = document.getElementById('videoTitle').value.trim() || null;
+                var ebaySeller = document.getElementById('ebaySeller').value.trim() || null;
+
+                var { data, error } = await sb.rpc('update_hamlet_extras', {
+                    p_slug: slug,
+                    p_token: token,
+                    p_shelves: shelves,
+                    p_video_url: videoUrl,
+                    p_video_title: videoTitle,
+                    p_ebay_seller: ebaySeller
+                });
+
+                if (error) {
+                    showStatus('Something went wrong: ' + (error.message || 'Please try again.'), 'err');
+                } else if (data === false) {
+                    showStatus('Token mismatch — use the original edit link.', 'err');
+                } else {
+                    showStatus('Saved! Your berth has been updated.', 'ok');
+                }
+            } catch (e) {
+                showStatus('Something went wrong. Please try again.', 'err');
+            }
+            btn.disabled = false;
+            btn.textContent = 'Save Changes';
+        }
+
+        function showStatus(msg, type) {
+            var el = document.getElementById('statusMsg');
+            el.textContent = msg;
+            el.className = 'status-msg show ' + type;
+            setTimeout(function() { el.classList.remove('show'); }, 5000);
+        }
+
+        function escHtml(str) {
+            var div = document.createElement('div');
+            div.textContent = str || '';
+            return div.innerHTML;
+        }
+        function escAttr(str) {
+            return (str || '').replace(/&/g, '&amp;').replace(/"/g, '&quot;')
+                .replace(/'/g, '&#39;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
+        }
+
+        init();
+    </script>
+</body>
+</html>
