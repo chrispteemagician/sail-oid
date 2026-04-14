@@ -129,7 +129,7 @@
         <div class="bubble" style="width:12px;height:12px;left:80%;bottom:25%;animation-duration:9s;animation-delay:0.5s;"></div>
         <div class="bubble" style="width:16px;height:16px;left:45%;bottom:5%;animation-duration:6.5s;animation-delay:3s;"></div>
         <div class="max-w-3xl mx-auto relative z-10">
-            <div class="text-7xl mb-4">&#9973;</div>
+            <div class="text-7xl mb-4" id="logoTapTarget" onclick="handleLogoTap()" style="cursor:pointer; user-select:none;">&#9973;</div>
             <h1 class="text-5xl md:text-7xl font-black text-white mb-2 tracking-tight">Sail-Oid</h1>
             <p class="text-xl text-sky-300 font-semibold mb-1">The Marina Village</p>
             <p class="font-hand text-2xl text-amber-300">"The sea became my new rave -- same freedom, same respect, same community."</p>
@@ -1406,5 +1406,31 @@
             }
         });
     </script>
+
+<div id="godModeIndicator" style="display:none; background:#0ea5e9; color:#000; text-align:center; padding:4px; font-size:0.72rem; font-weight:700; letter-spacing:2px; position:fixed; top:0; left:0; right:0; z-index:9998;">⚡ GOD MODE ACTIVE</div>
+
+<script>
+  // GOD MODE — triple-tap logo
+  let _gmTaps = 0, _gmTimer = null;
+  function handleLogoTap() {
+    _gmTaps++;
+    clearTimeout(_gmTimer);
+    _gmTimer = setTimeout(() => { _gmTaps = 0; }, 800);
+    if (_gmTaps >= 3) {
+      _gmTaps = 0;
+      if (localStorage.getItem('sail_oid_god_mode') === '1') { alert('God Mode already active ✓'); return; }
+      const input = prompt('Enter passcode:');
+      if (input === 'Z0d14cM4nTr1n1tyxx') {
+        localStorage.setItem('sail_oid_god_mode', '1');
+        document.getElementById('godModeIndicator').style.display = 'block';
+        alert('God Mode activated 🔥');
+      }
+    }
+  }
+  if (localStorage.getItem('sail_oid_god_mode') === '1') {
+    document.getElementById('godModeIndicator').style.display = 'block';
+  }
+</script>
+
 </body>
 </html>
