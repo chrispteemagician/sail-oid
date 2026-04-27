@@ -1,13 +1,17 @@
-// Sail-Oid: Sailing & Nautical AI Identification
+﻿// Sail-Oid: Sailing & Nautical AI Identification
 // Part of the FeelFamous -Oid Ecosystem
 // Uses Gemini 2.0 Flash Vision API
 
+const { sanitize } = require('./ipi-sanitize');
+const { buildSecureSystemPrompt, stripExifFromJpeg, logImageMeta, SECURITY_HEADERS } = require('./gemini-secure-wrapper');
+const { logThreat } = require('./security-log');
 exports.handler = async (event) => {
   const headers = {
     'Access-Control-Allow-Origin': '*',
     'Access-Control-Allow-Headers': 'Content-Type',
     'Access-Control-Allow-Methods': 'POST, OPTIONS',
-    'Content-Type': 'application/json'
+    'Content-Type': 'application/json',
+    ...SECURITY_HEADERS,
   };
 
   if (event.httpMethod === 'OPTIONS') {
@@ -132,6 +136,11 @@ Format as JSON:
 
     const systemPrompt = mode === 'roast' ? roastPrompt : identifyPrompt;
 
+    const rawImage = image.replace(/^data:image\/\w+;base64,/, '');
+    logImageMeta('sail-oid', 'image/jpeg', rawImage.length);
+    const { cleaned: cleanImage } = stripExifFromJpeg(rawImage);
+    const securedPrompt = buildSecureSystemPrompt(systemPrompt);
+
     const response = await fetch(
       `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=${apiKey}`,
       {
@@ -140,13 +149,14 @@ Format as JSON:
           'Content-Type': 'application/json',
         },
         body: JSON.stringify({
+          system_instruction: { parts: [{ text: securedPrompt }] },
           contents: [{
             parts: [
-              { text: systemPrompt },
+              { text: mode === 'roast' ? 'Roast this nautical item.' : 'Identify this nautical item.' },
               {
                 inline_data: {
                   mime_type: "image/jpeg",
-                  data: image.replace(/^data:image\/\w+;base64,/, '')
+                  data: cleanImage
                 }
               }
             ]
